@@ -30,7 +30,7 @@ export function Header({ isMetamaskInstalled, connectWallet, account, signer }:
     return (
         <div className='md:w-[12.5vw] lg:w-[12.5vw] md:h-screen lg:h-screen shadow-2xl border-r-[1px] border-secondary'>
             <div className="w-full bg-transparent flex flex-col items-center">
-                <img className="w-[6vw] py-[5vh] cursor-pointer" src={LogoApp} alt="Whale Finance" onClick={() => navigator('/')}/>
+                <img className="w-[120px] py-[3vh] cursor-pointer" src={LogoApp} alt="Whale Finance" onClick={() => navigator('/')}/>
                 <Button variant="ghost" className="w-full" onClick={() => navigator('/')}>Home</Button>
                 <NavButton to="/funds-list">Funds List</NavButton>
                 <NavButton to="/create-fund">Create Fund</NavButton>

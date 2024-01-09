@@ -53,7 +53,11 @@ export default function App() {
                 signer={signer}
               />} />
             <Route path="/funds-list/:id" element={
-              <FundInvestor/>}
+              <FundInvestor
+                // account={account}
+                // provider={provider}
+                // signer={signer}
+              />}
             />
             <Route path="/create-fund" element={
               <CreateFund

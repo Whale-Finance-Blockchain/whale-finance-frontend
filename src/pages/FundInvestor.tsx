@@ -2,7 +2,6 @@ import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
@@ -12,19 +11,7 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
 import { Button } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -49,8 +36,10 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Label } from "@radix-ui/react-label";
 import { ReloadIcon } from "@radix-ui/react-icons"
-import { Separator } from "@/components/ui/separator";
 import FundHeroSection from "@/components/FundHeroSection";
+// import { WhaleFinanceAddress, DrexAddress, scanUrl } from '../utils/addresses';
+// import { QuotaTokenAbi } from '../contracts/QuotaToken';
+// import { WhaleFinanceAbi } from '../contracts/WhaleFinance';
 
 type FundData = {
     id: number;
@@ -59,66 +48,33 @@ type FundData = {
     avatar: string;
 };
 
+// { account, provider, signer }: { account: string | null; provider: any; signer: any;}
+
 export default function FundInvestor() {
 
     const params = useParams();
     const fundId = params.id || '';
 
-    const [loading, setLoading] = useState<boolean>(false);
-    const [fund, setFund] = useState<FundData | null>(null);
-
     const navigator = useNavigate();
 
-    // const [funds, setFunds] = useState<FundData[]>([]);
+    const [fund, setFund] = useState<FundData | null>(null);
+    const [invest, setInvest] = useState(0);
+    const [balance, setBalance] = useState(0);
 
-    // const fundsElements = funds.map((fund, idx) =>
+    const [loading, setLoading] = useState<boolean>(false);
 
-    //     return(<div onClick={() => navigator(`/fundslist/${fund.id}`)}>
-
-    //     </div>)
-    // )
-
-    // const [price, setPrice] = useState(0);
-
-    // async function fetchCryptoPrice(symbol: any) {
-    //     try {
-    //       const response = await axios.get(`http://localhost:3000/api/crypto/price/${symbol}`);
-    //       return response.data;
-    //     } catch (error) {
-    //       console.error('Error fetching crypto price:', error);
-    //       // Handle error (e.g., show an alert or message to the user)
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     fetchCryptoPrice('BTC').then(data => {
-    //       setPrice(data.price);
-    //     });
-    // }, []);
-
-    // const FormSchema = z.object({
-    //     username: z.string().min(2, {
-    //       message: "Username must be at least 2 characters.",
-    //     }),
-    // })
-
-    // const form = useForm<z.infer<typeof FormSchema>>({
-    //     resolver: zodResolver(FormSchema),
-    //     defaultValues: {
-    //       username: "",
-    //     },
-    // })
-     
-    // function onSubmit(data: z.infer<typeof FormSchema>) {
-    //     toast({
-    //       title: "You submitted the following values:",
-    //       description: (
-    //         <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-    //             <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-    //         </pre>
-    //       ),
-    //     })
-    // }
+    async function makeInvestment(){
+        try{
+            setInvest(1);
+            toast({
+                title: "You invested",
+                description: "using Whale Finance",
+              })
+              navigator("/success");
+        }catch(err){
+            console.log(err);
+        }
+    }
 
     useEffect(() => {
         const hedgeFunds: FundData[] = [
@@ -137,14 +93,18 @@ export default function FundInvestor() {
         // Find the fund with the matching ID
         const selectedFund = hedgeFunds.find(f => f.id === parseInt(fundId, 10)) || null;
         setFund(selectedFund);
+        setBalance(123);
     }, [fundId]);
 
-    function onInvest() {
-        toast({
-          title: "You invested",
-          description: "using Whale Finance",
-        })
-        navigator("/success");
+    function formatToUSD(number: number) {
+        const formattedNumber = new Intl.NumberFormat('en-US', { 
+          style: 'currency', 
+          currency: 'USD',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(number); // Convert to millions
+      
+        return `${formattedNumber}`;
     }
 
     return (
@@ -163,39 +123,39 @@ export default function FundInvestor() {
                                 <CardDescription>You can choose the amount of USD to invest in this fund</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                            {/* <Form {...form}>
-                                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                                    <FormField
-                                    control={form.control}
-                                    name="username"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                        <FormLabel>Username</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="shadcn" {...field} />
-                                        </FormControl>
-                                        <FormDescription>
-                                            This is your public display name.
-                                        </FormDescription>
-                                        <FormMessage />
-                                        </FormItem>
-                                    )}
-                                    />
-                                    <Button type="submit">Submit</Button>
-                                </form>
-                            </Form> */}
                                 <div className="flex space-x-4">
                                     <div className="flex-1 space-y-1">
-                                        <Label className="text-sm">Amount of USD</Label>
-                                        <Input id="invest" type="number" placeholder="ex. 129" ></Input>
+                                        <Label className="text-sm ml-2">Amount of USD</Label>
+                                        <div className="flex flex-row space-x-1">
+                                            <Input 
+                                                id="invest" 
+                                                type="number" 
+                                                placeholder="ex. 129"
+                                                value={invest}
+                                                onChange={(e) => setInvest(parseFloat(e.target.value))} 
+                                            />
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger>
+                                                        <Button className="underline text-primary px-2" variant="outline">Max</Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                    <p>Invest all your money in the wallet</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        </div>
                                     </div>
-                                    <Separator orientation="vertical" />
-                                    <div className="flex-1 flex flex-col items-start space-y-1">
+                                    <div className="flex-1 flex flex-col items-start space-y-1 bg-primarylighter rounded px-4 py-2">
                                         <Label className="text-sm">USD Balance in your wallet</Label>
                                         <div className="flex flex-col items-center justify-center">
                                         <TooltipProvider>
                                             <Tooltip>
-                                                <TooltipTrigger className="text-2xl py-1 font-bold">123</TooltipTrigger>
+                                                <TooltipTrigger className="text-2xl font-bold">
+                                                    <div>
+                                                    {formatToUSD(balance)}
+                                                    </div>
+                                                </TooltipTrigger>
                                                 <TooltipContent>
                                                 <p>Check in your wallet</p>
                                                 </TooltipContent>
@@ -212,7 +172,7 @@ export default function FundInvestor() {
                                             Please wait
                                         </Button>
                                         :
-                                        <Button onClick={onInvest}>Invest</Button>
+                                        <Button onClick={makeInvestment}>Invest</Button>
                                         }
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>

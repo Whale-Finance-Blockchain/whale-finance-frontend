@@ -48,11 +48,18 @@ export default function App() {
             />
           }>
             <Route path="/" element={<Home />} />
-            <Route path="/funds-list" element={<FundsList />} />
+            <Route path="/funds-list" element={
+              <FundsList
+                signer={signer}
+              />} />
             <Route path="/funds-list/:id" element={
               <FundInvestor/>}
             />
-            <Route path="/create-fund" element={<CreateFund />} />
+            <Route path="/create-fund" element={
+              <CreateFund
+                account={account}
+                signer={signer} 
+              />} />
             <Route path="/success" element={<SuccessPage />} />
             <Route path="/manager" element={<ManagerArea />} />
             <Route path="/manager/:id" element={

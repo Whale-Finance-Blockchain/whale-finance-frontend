@@ -38,9 +38,16 @@ import { toast } from "@/components/ui/use-toast"
 import React, { useState } from "react"
 import { ReloadIcon } from "@radix-ui/react-icons"
 import { useNavigate } from "react-router-dom"
+import { ethers } from 'ethers';
+import { WhaleFinanceAbi } from '../contracts/WhaleFinance';
+import { WhaleFinanceAddress } from '../utils/addresses';
+import { allowedTokens } from "../utils/addresses";
+import { PopoverClose } from "@radix-ui/react-popover"
+import { Checkbox } from "@/components/ui/checkbox"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 
-export default function CreateFund() {
+export default function CreateFund({ account, signer }: { account: string | null; signer: any;}) {
 
     const navigator = useNavigate();
 
@@ -50,19 +57,117 @@ export default function CreateFund() {
     const [closeInvestment, setCloseInvestment] = React.useState<Date>();
     const [maturationTime, setMaturationtime] = React.useState<Date>();
 
+    const [name, setName] = React.useState('');
+    const [ticker, setTicker] = React.useState('');
+    const [admFee, setAdmFee] = React.useState(0.5);
+    const [perfFee, setPerfFee] = React.useState(10);
+    
+    // const [openInvestment, setOpenInvestment] = React.useState("");
+    // const [closeInvestment, setCloseInvestment] = React.useState("");
+    // const [maturationTime, setMaturationtime] = React.useState("");
+
+    const [tokens, setTokens] = React.useState<string[]>([]);
+
+    // function handleDateTimestamp(date: string) {
+    //     const dateObj = new Date(date);
+    //     const timestamp = dateObj.getTime()/1000;
+    //     return timestamp;
+    // }
+
+    function handleDateTimestamp(date: Date | undefined) {
+        const safeDate = date || new Date();
+        const timestamp = safeDate.getTime().toString();
+        return timestamp;
+    }
+
+    const handleCheckboxChange = (tokenName: string, checked: boolean) => {
+        setTokens(prevTokens => {
+            const updatedTokens = new Set(prevTokens);
+            const tokenValue = allowedTokens[tokenName];
+    
+            if (checked) {
+                updatedTokens.add(tokenValue);
+            } else {
+                updatedTokens.delete(tokenValue);
+            }
+    
+            return Array.from(updatedTokens);
+        });
+    };
+
+    async function handleSubmit() {
+        if (!openInvestment || !(openInvestment instanceof Date) || 
+            !closeInvestment || !(closeInvestment instanceof Date) || 
+            !maturationTime || !(maturationTime instanceof Date)) {
+            alert("Please fill all the fields");
+            return;
+        }
+        if(!signer){
+            alert("Please connect your wallet");
+            return;
+        }
+        if(tokens.length === 0){
+            alert("Please add at least one token");
+            return;
+        }
+        setLoading(true);
+
+        const openInvestmentTimestamp = handleDateTimestamp(openInvestment);
+        const closeInvestmentTimestamp = handleDateTimestamp(closeInvestment);
+        const maturationTimeTimestamp = handleDateTimestamp(maturationTime);
+
+        const admFeeBps = admFee * 100;
+        const perfFeeBps = perfFee * 100;
+
+        try{
+            const whaleFinanceContract = new ethers.Contract(WhaleFinanceAddress, WhaleFinanceAbi, signer);
+            const txNewFund = await whaleFinanceContract.createFund(
+                name,
+                ticker, 
+                account, 
+                tokens, 
+                admFeeBps, 
+                perfFeeBps,
+                openInvestmentTimestamp,
+                closeInvestmentTimestamp,
+                maturationTimeTimestamp
+            );
+
+            await txNewFund.wait();
+            console.log(txNewFund);
+            navigator('/success');
+
+        } catch(err){
+            console.log(err);
+            alert("Something went wrong! Try again");
+            
+
+        }finally{
+            setLoading(false);
+        }   
+    }
+
     function onSave() {
         toast({
           title: "You saved",
           description: "Fund data information",
         })
+        console.log(name);
+        console.log(ticker);
+        console.log(admFee);
+        console.log(perfFee);
     }
 
-    function onSubmit() {
+    const onSubmit = async () => {
+        await handleSubmit();
         toast({
           title: "You submitted",
           description: "your Fund Creation",
         })
-        navigator("/success");
+        console.log(openInvestment);
+        console.log(closeInvestment);
+        console.log(maturationTime);
+        console.log(tokens);
     }
 
     return (
@@ -87,21 +192,45 @@ export default function CreateFund() {
                                 <div className="space-y-2">
                                     <div className="space-y-1">
                                     <Label>Name</Label>
-                                    <Input id="name" placeholder="ex. Falcon Fund" />
+                                    <Input 
+                                        id="name" 
+                                        type="text" 
+                                        placeholder="ex. Falcon Fund" 
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                    />
                                     </div>
                                     <div className="space-y-1">
                                     <Label>Ticker</Label>
-                                    <Input id="ticker" placeholder="ex. FLCN" />
+                                    <Input 
+                                        id="ticker" 
+                                        type="text" 
+                                        placeholder="ex. FLCN"
+                                        value={ticker}
+                                        onChange={(e) => setTicker(e.target.value)}
+                                    />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <div className="space-y-1">
                                     <Label>Administration Fee</Label>
-                                    <Input id="admfee" type="number" placeholder="ex. 1%" />
+                                    <Input 
+                                        id="admfee" 
+                                        type="number" 
+                                        placeholder="ex. 1%" 
+                                        value={admFee}
+                                        onChange={(e) => setAdmFee(parseFloat(e.target.value))}
+                                    />
                                     </div>
                                     <div className="space-y-1">
                                     <Label>Performace Fee</Label>
-                                    <Input id="perfee" type="number" placeholder="ex. 10%" />
+                                    <Input 
+                                        id="perfee" 
+                                        type="number" 
+                                        placeholder="ex. 10%" 
+                                        value={perfFee}
+                                        onChange={(e) => setPerfFee(parseFloat(e.target.value))}
+                                    />
                                     </div>
                                 </div>
                             </div>
@@ -127,8 +256,8 @@ export default function CreateFund() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-2">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
+                            <div className="grid grid-cols-4 gap-4">
+                                <div className="col-span-2 space-y-2">
                                     <div className="space-y-1">
                                     <Label>Start time for investments</Label>
                                     <Popover>
@@ -145,12 +274,14 @@ export default function CreateFund() {
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0">
-                                            <Calendar
-                                            mode="single"
-                                            selected={openInvestment}
-                                            onSelect={setOpenInvestment}
-                                            initialFocus
-                                            />
+                                            <PopoverClose>
+                                                <Calendar
+                                                mode="single"
+                                                selected={openInvestment}
+                                                onSelect={setOpenInvestment}
+                                                initialFocus
+                                                />
+                                            </PopoverClose> 
                                         </PopoverContent>
                                     </Popover>
                                     </div>
@@ -170,12 +301,14 @@ export default function CreateFund() {
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0">
-                                            <Calendar
-                                            mode="single"
-                                            selected={closeInvestment}
-                                            onSelect={setCloseInvestment}
-                                            initialFocus
-                                            />
+                                            <PopoverClose>
+                                                <Calendar
+                                                mode="single"
+                                                selected={closeInvestment}
+                                                onSelect={setCloseInvestment}
+                                                initialFocus
+                                                />
+                                            </PopoverClose> 
                                         </PopoverContent>
                                     </Popover>
                                     </div>
@@ -195,38 +328,65 @@ export default function CreateFund() {
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0">
-                                            <Calendar
-                                            mode="single"
-                                            selected={maturationTime}
-                                            onSelect={setMaturationtime}
-                                            initialFocus
-                                            />
+                                            <PopoverClose>
+                                                <Calendar
+                                                mode="single"
+                                                selected={maturationTime}
+                                                onSelect={setMaturationtime}
+                                                initialFocus
+                                                />
+                                            </PopoverClose>
                                         </PopoverContent>
                                     </Popover>
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <div className="space-y-1">
-                                    <Label>Accepted Tokens</Label>
-                                    <Input id="admfee" type="number" placeholder="ex. 1%" />
+                                        <Label>Accepted Tokens</Label>
+                                        <div className="flex items-center space-x-2">
+                                            <ScrollArea className="h-[18vh] w-full rounded-md border">
+                                            <div className="p-4 space-y-4">
+                                                {Object.keys(allowedTokens).map((tokenName: string, idx: number) => {
+                                                    return(
+                                                    <div key={idx} className="flex items-center space-x-4">                                                
+                                                        <Checkbox 
+                                                            onCheckedChange={(checked) => {
+                                                                const isChecked = typeof checked === 'boolean' && checked;
+                                                                handleCheckboxChange(tokenName, isChecked)
+                                                            }}
+                                                        />
+                                                        <label
+                                                            htmlFor="token"
+                                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                        >
+                                                            {tokenName}
+                                                        </label>
+                                                    </div>
+                                                    );
+                                                })}
+                                            </div>
+                                            </ScrollArea>
+                                        </div>
                                     </div>
+                                </div>
+                                <div className="space-y-2">
                                     <div className="space-y-1">
-                                    <Label>Choosen Dex</Label>
-                                    <Select>
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Select a Dex" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                            <SelectLabel>Dex</SelectLabel>
-                                            <SelectItem value="apple">Apple</SelectItem>
-                                            <SelectItem value="banana">Banana</SelectItem>
-                                            <SelectItem value="blueberry">Blueberry</SelectItem>
-                                            <SelectItem value="grapes">Grapes</SelectItem>
-                                            <SelectItem value="pineapple">Pineapple</SelectItem>
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
+                                        <Label>Choosen Dex</Label>
+                                        <Select>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Select a Dex" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                <SelectLabel>Dex</SelectLabel>
+                                                <SelectItem value="apple">Apple</SelectItem>
+                                                <SelectItem value="banana">Banana</SelectItem>
+                                                <SelectItem value="blueberry">Blueberry</SelectItem>
+                                                <SelectItem value="grapes">Grapes</SelectItem>
+                                                <SelectItem value="pineapple">Pineapple</SelectItem>
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                 </div>
                             </div>

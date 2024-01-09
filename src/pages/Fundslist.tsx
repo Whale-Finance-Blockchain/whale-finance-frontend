@@ -7,6 +7,10 @@ import { useNavigate } from "react-router-dom";
 import '../components/truncate.css';
 import { Separator } from "@/components/ui/separator";
 import { AiOutlineArrowUp, AiOutlineArrowDown } from "react-icons/ai";
+import { getMetamaskProvider } from '../utils/connectMetamask';
+import { ethers } from 'ethers';
+import { WhaleFinanceAbi } from '../contracts/WhaleFinance';
+import { WhaleFinanceAddress } from '../utils/addresses';
 
 type FundData = {
     id: number;
@@ -15,33 +19,83 @@ type FundData = {
     avatar: string;
 };
 
-export default function FundsList() {
+export default function FundsList({ signer }: { signer: any;}) {
 
     const navigator = useNavigate();
 
     const [loading, setLoading] = useState<boolean>(false);
     const [funds, setFunds] = useState<FundData[]>([]);
 
-    const apy = 0.1;
-
     useEffect(() => {
-        const hedgeFunds: FundData[] = [
-            { id: 1, name: "Alpha Capital", description: "Specializes in algorithm-based trading strategies across global equity markets.", avatar: "src/assets/whale_avatar3.png"  },
-            { id: 2, name: "Blue Peak Investments", description: "Focuses on long/short equity with a strong emphasis on emerging markets.", avatar: "src/assets/whale_avatar4.png" },
-            { id: 3, name: "Crestwood Equity Partners", description: "A multi-strategy fund with a focus on value and event-driven investments.", avatar: "src/assets/whale_avatar5.png" },
-            { id: 4, name: "Diamond Edge Capital", description: "Engages in quantitative trading, utilizing advanced analytics in global markets.", avatar: "src/assets/whale_avatar1.png" },
-            { id: 5, name: "Echo Ventures", description: "Prioritizes sustainable and socially responsible investments in technology and green energy sectors.", avatar: "src/assets/whale_avatar3.png" },
-            { id: 6, name: "Falcon Asset Management", description: "Specializes in high-yield fixed income and distressed assets.", avatar: "src/assets/whale_avatar1.png" },
-            { id: 7, name: "Granite Hill Partners", description: "A real estate-focused hedge fund with an emphasis on commercial properties.", avatar: "src/assets/whale_avatar2.png" },
-            { id: 8, name: "Horizon Global Strategies", description: "Concentrates on macroeconomic trends to guide investment in international equities and commodities.", avatar: "src/assets/whale_avatar4.png" },
-            { id: 9, name: "Ironclad Funds", description: "Utilizes a risk-averse approach to invest in large-cap stocks and government bonds.", avatar: "src/assets/whale_avatar2.png" },
-            { id: 10, name: "Jupiter Wealth Management", description: "A boutique hedge fund focusing on wealth preservation and conservative growth strategies.", avatar: "src/assets/whale_avatar5.png" }
-        ];
-        setFunds(hedgeFunds);
-    }, []);
+        const getFunds = async () => {
+            try{
+                const provider = getMetamaskProvider() as ethers.providers.Web3Provider;
+                const whaleFinanceContract = new ethers.Contract(WhaleFinanceAddress, WhaleFinanceAbi, provider);
+                const numberFundsBigNumber = await whaleFinanceContract._fundIdCounter() as ethers.BigNumber[];
+                console.log(numberFundsBigNumber);
+                const numberFunds = parseInt(numberFundsBigNumber[0]._hex);
+                console.log(numberFunds);
+
+                const fundsList: FundData[] = [];
+
+                await Promise.all(Array(numberFunds).fill(null).map(async (_, index) => {
+                    const fundName = await whaleFinanceContract.functions.fundsNames(index);
+                    console.log(fundName);
+                    const oneFund: FundData = {
+                        id: index,
+                        name: fundName,
+                        description: "",
+                        avatar: "src/assets/whale_avatar3.png"
+                    };
+                    fundsList.push(oneFund);
+                                       
+                }));
+
+                setFunds([...fundsList]);
+
+            } catch(err){
+                console.log("Error");
+                console.log(err);
+            }
+        }
+      
+        getFunds();
+    }, [signer]);
+
+    function formatToUSD(number: number) {
+        const formattedNumber = new Intl.NumberFormat('en-US', { 
+          style: 'currency', 
+          currency: 'USD',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(number / 1000000); // Convert to millions
+      
+        return `${formattedNumber} mi`;
+    }
+
+    // useEffect(() => {
+    //     const hedgeFunds: FundData[] = [
+    //         { id: 1, name: "Alpha Capital", description: "Specializes in algorithm-based trading strategies across global equity markets.", avatar: "src/assets/whale_avatar3.png"  },
+    //         { id: 2, name: "Blue Peak Investments", description: "Focuses on long/short equity with a strong emphasis on emerging markets.", avatar: "src/assets/whale_avatar4.png" },
+    //         { id: 3, name: "Crestwood Equity Partners", description: "A multi-strategy fund with a focus on value and event-driven investments.", avatar: "src/assets/whale_avatar5.png" },
+    //         { id: 4, name: "Diamond Edge Capital", description: "Engages in quantitative trading, utilizing advanced analytics in global markets.", avatar: "src/assets/whale_avatar1.png" },
+    //         { id: 5, name: "Echo Ventures", description: "Prioritizes sustainable and socially responsible investments in technology and green energy sectors.", avatar: "src/assets/whale_avatar3.png" },
+    //         { id: 6, name: "Falcon Asset Management", description: "Specializes in high-yield fixed income and distressed assets.", avatar: "src/assets/whale_avatar1.png" },
+    //         { id: 7, name: "Granite Hill Partners", description: "A real estate-focused hedge fund with an emphasis on commercial properties.", avatar: "src/assets/whale_avatar2.png" },
+    //         { id: 8, name: "Horizon Global Strategies", description: "Concentrates on macroeconomic trends to guide investment in international equities and commodities.", avatar: "src/assets/whale_avatar4.png" },
+    //         { id: 9, name: "Ironclad Funds", description: "Utilizes a risk-averse approach to invest in large-cap stocks and government bonds.", avatar: "src/assets/whale_avatar2.png" },
+    //         { id: 10, name: "Jupiter Wealth Management", description: "A boutique hedge fund focusing on wealth preservation and conservative growth strategies.", avatar: "src/assets/whale_avatar5.png" }
+    //     ];
+    //     setFunds(hedgeFunds);
+    // }, []);
 
     const fundsElements = funds.map((fund) =>
     {
+        let apy = 0.10;
+        let tvl = 100000000;
+
+        const formattedApy = new Intl.NumberFormat('en-US', { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(apy);
+
         return(<div onClick={() => navigator(`/funds-list/${fund.id}`)}>
             <Card className="cursor-pointer hover:border-primary">
                 {!loading ?  
@@ -59,14 +113,14 @@ export default function FundsList() {
                         <div className="flex h-8 items-center space-x-4 text-md">
                         <div className="flex-1 flex flex-row items-center justify-center space-x-8">
                                 <p>TVL:</p>
-                                <p className="">28</p>
+                                <p className="">{formatToUSD(tvl)}</p>
                             </div>
                             <Separator orientation="vertical" />
                             <div className="flex-1 flex flex-row items-center justify-center space-x-8">
                                 <p>APY:</p>
                                 <div className='flex flex-row items-center justify-center space-x-1'>
                                     {apy > 0 ? <AiOutlineArrowUp color="rgb(34 197 94)" size={20}/> : apy < 0 ? <AiOutlineArrowDown color="rgb(249 115 22)" size={20}/> : ''}
-                                    <p className={`font-bold ${apy > 0 ? 'text-green-500' : apy < 0 ? 'text-red-500' : ''}`}>10%</p>
+                                    <p className={`font-bold ${apy > 0 ? 'text-green-500' : apy < 0 ? 'text-red-500' : ''}`}>{formattedApy}</p>
                                 </div>
                             </div>
                         </div>

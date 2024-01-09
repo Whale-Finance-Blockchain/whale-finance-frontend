@@ -18,14 +18,72 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+  } from "@/components/ui/select"
 import ConnectWalletBtn from "./ConnectWalletBtn";
 import NavButton from "./NavButton";
 import LogoApp from "../assets/whale_logo_green.png";
+import blockies from 'ethereum-blockies-base64';
+import { useEffect, useState } from "react";
+import AvatarDefault from "../assets/whale_avatar1.png"
+import { switchNetwork } from "../utils/connectMetamask";
 
 export function Header({ isMetamaskInstalled, connectWallet, account, signer }: 
     { isMetamaskInstalled: boolean; connectWallet: any; account: string | null; signer: any;}) {
 
     const navigator = useNavigate();
+
+    const [avatar, setAvatar] = useState('');
+
+    const [selectedNetwork, setSelectedNetwork] = useState('');
+
+    const networks: { [key: string]: number } = {
+        'Ethereum': 1,
+        'Polygon': 137,
+        'BNB Chain': 56,
+        // 'Arbitrum': 42161,
+        // 'Optimism': 10,
+        // 'Avalanche': 43114,
+        // 'Celo': 42220,
+    };
+
+    const networkIcons: { [key: string]: string } = {
+        'Ethereum': 'src/assets/ETH-icon.png',
+        'Polygon': 'src/assets/Polygon-icon.png',
+        'BNB Chain': 'src/assets/BNB-icon.png'
+    };
+
+    const handleNetworkChange = async (networkName: string) => {
+        const chainId = networks[networkName];
+        if (chainId) {
+          await switchNetwork(chainId);
+        setSelectedNetwork(networkName.toString());
+        }
+    };
+
+    const getAccountAvatar = async () => {
+        try {
+          if (account) {
+            return blockies(account);
+          } else {
+            return '../assets/whale_avatar1.png';
+          }
+        } catch (error) {
+          return '../assets/whale_avatar1.png';
+        }
+    };
+    
+    useEffect(() => {
+        getAccountAvatar().then(setAvatar);
+    }, [signer]);
+
 
     return (
         <div className='md:w-[12.5vw] lg:w-[12.5vw] md:h-screen lg:h-screen shadow-2xl border-r-[1px] border-secondary'>
@@ -35,8 +93,11 @@ export function Header({ isMetamaskInstalled, connectWallet, account, signer }:
                 <NavButton to="/funds-list">Funds List</NavButton>
                 <NavButton to="/create-fund">Create Fund</NavButton>
                 <NavButton to="/manager">Manager Area</NavButton>
-                <div className="w-full flex flex-row justify-center mt-[35vh] mb-6">
-                    <ModeToggle/>
+                <div className="w-full flex flex-row justify-center mt-[30vh] my-6">
+                    <Avatar>
+                        <AvatarImage src={avatar} alt="@user" />
+                        <AvatarFallback><img src={AvatarDefault} alt="@user" /></AvatarFallback>
+                    </Avatar>
                 </div>
                 <ConnectWalletBtn
                     isMetamaskInstalled={isMetamaskInstalled}
@@ -44,6 +105,36 @@ export function Header({ isMetamaskInstalled, connectWallet, account, signer }:
                     account={account}
                     signer={signer}
                 />
+                <Select
+                    disabled={!signer}
+                    value={selectedNetwork}
+                    onValueChange={(value) => handleNetworkChange(value)}
+                >
+                    <SelectTrigger className="border-transparent w-[80%] mt-2">
+                        <SelectValue className="truncate" placeholder="Select a Network" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                        <SelectLabel>Networks</SelectLabel>
+                        {Object.keys(networks).map((key) => { 
+                            return (
+                                <SelectItem
+                                    key={key}
+                                    value={key}
+                                >
+                                    <div className="flex flex-row items-center space-x-2">
+                                        <img className="h-4" src={networkIcons[key]} alt={key}/>
+                                        <p className="">{key}</p>
+                                    </div>
+                                </SelectItem>
+                            )
+                        })}
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+                <div className="w-full flex flex-row justify-center mt-12">
+                    <ModeToggle/>
+                </div>
                 <Sheet>
                     <SheetTrigger asChild>
                         <Button variant="ghost" className="w-full">Open KYC Manager</Button>
@@ -76,12 +167,6 @@ export function Header({ isMetamaskInstalled, connectWallet, account, signer }:
                         </SheetFooter>
                     </SheetContent>
                 </Sheet>
-                {/* <div className="w-full flex flex-row justify-center mt-48">
-                    <Avatar>
-                        <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                        <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                </div> */}
             </div>
         </div>
     )

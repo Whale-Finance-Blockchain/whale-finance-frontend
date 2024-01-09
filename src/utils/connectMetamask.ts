@@ -38,3 +38,32 @@ export function getMetamaskProvider(){
         }
     }
 }
+
+export async function switchNetwork(chainId: number) {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: ethers.utils.hexValue(chainId) }],
+        });
+      } catch (switchError: any) {
+        if (switchError.code === 4902) {
+          try {
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{
+                chainId: ethers.utils.hexValue(chainId),
+                // Add other network details here
+              }],
+            });
+          } catch (addError: any) {
+            console.error(addError);
+          }
+        } else {
+          console.error(switchError);
+        }
+      }
+    } else {
+      alert('You need to have MetaMask installed to change networks!');
+    }
+  }

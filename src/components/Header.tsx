@@ -34,6 +34,7 @@ import blockies from 'ethereum-blockies-base64';
 import { useEffect, useState } from "react";
 import AvatarDefault from "../assets/whale_avatar1.png"
 import { switchNetwork } from "../utils/connectMetamask";
+import { Home } from 'lucide-react';
 
 export function Header({ isMetamaskInstalled, connectWallet, account, signer }: 
     { isMetamaskInstalled: boolean; connectWallet: any; account: string | null; signer: any;}) {

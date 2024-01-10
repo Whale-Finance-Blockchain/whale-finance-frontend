@@ -37,9 +37,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Label } from "@radix-ui/react-label";
 import { ReloadIcon } from "@radix-ui/react-icons"
 import FundHeroSection from "@/components/FundHeroSection";
-// import { WhaleFinanceAddress, DrexAddress, scanUrl } from '../utils/addresses';
-// import { QuotaTokenAbi } from '../contracts/QuotaToken';
-// import { WhaleFinanceAbi } from '../contracts/WhaleFinance';
+import { WhaleFinanceAddress, DrexAddress, scanUrl } from '../utils/addresses';
+import { QuotaTokenAbi } from '../contracts/QuotaToken';
+import { WhaleFinanceAbi } from '../contracts/WhaleFinance';
 
 type FundData = {
     id: number;
@@ -48,9 +48,9 @@ type FundData = {
     avatar: string;
 };
 
-// { account, provider, signer }: { account: string | null; provider: any; signer: any;}
 
-export default function FundInvestor() {
+
+export default function FundInvestor({ account, provider, signer }: { account: string | null; provider: any; signer: any;}) {
 
     const params = useParams();
     const fundId = params.id || '';

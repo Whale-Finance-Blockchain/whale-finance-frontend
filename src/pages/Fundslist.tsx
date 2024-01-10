@@ -23,7 +23,7 @@ export default function FundsList({ signer }: { signer: any;}) {
 
     const navigator = useNavigate();
 
-    const [loading, setLoading] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(true);
     const [funds, setFunds] = useState<FundData[]>([]);
 
     useEffect(() => {
@@ -32,9 +32,7 @@ export default function FundsList({ signer }: { signer: any;}) {
                 const provider = getMetamaskProvider() as ethers.providers.Web3Provider;
                 const whaleFinanceContract = new ethers.Contract(WhaleFinanceAddress, WhaleFinanceAbi, provider);
                 const numberFundsBigNumber = await whaleFinanceContract._fundIdCounter() as ethers.BigNumber;
-                console.log(numberFundsBigNumber);
                 const numberFunds = parseInt(numberFundsBigNumber._hex);
-                console.log(numberFunds);
 
                 const fundsList: FundData[] = [];
 
@@ -44,7 +42,7 @@ export default function FundsList({ signer }: { signer: any;}) {
                     const oneFund: FundData = {
                         id: index,
                         name: fundName,
-                        description: "",
+                        description: "Specializes in algorithm-based trading strategies across global equity markets.",
                         avatar: "src/assets/whale_avatar3.png"
                     };
                     fundsList.push(oneFund);
@@ -56,6 +54,8 @@ export default function FundsList({ signer }: { signer: any;}) {
             } catch(err){
                 console.log("Error");
                 console.log(err);
+            } finally {
+                setLoading(false);
             }
         }
       
@@ -127,7 +127,7 @@ export default function FundsList({ signer }: { signer: any;}) {
                     </CardContent>
                 </>
                 :
-                <div className="flex items-center space-x-4 p-8">
+                <div className="flex items-center space-x-4 p-16">
                     <Skeleton className="h-12 w-12 rounded-full" />
                     <div className="space-y-2">
                         <Skeleton className="h-4 w-[250px]" />
@@ -139,14 +139,39 @@ export default function FundsList({ signer }: { signer: any;}) {
         </div>)
     })
 
+    const loadingElements = Array(9).fill(null).map((_) =>
+    {
+        return(<div>
+            <Card>
+                <div className="flex items-center space-x-4 p-8">
+                    <Skeleton className="h-12 w-12 rounded-full" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-[250px]" />
+                        <Skeleton className="h-4 w-[200px]" />
+                    </div>
+                </div>
+            </Card>
+        </div>)
+    })
+
+
     return (
         <div className='w-[100vw] h-[100vh] overflow-y-auto'>
+            {!loading ? 
             <div className="p-12">
                 <HeroSection title="Dashboard"/>
                 <div className='grid grid-cols-1 gap-4 justify-center my-6 md:grid-cols-3 lg:grid-cols-4'>
                     {fundsElements}
                 </div>
             </div>
+            : 
+            <div className="p-12">
+                <HeroSection title="Dashboard"/>
+                <div className='grid grid-cols-1 gap-4 justify-center my-6 md:grid-cols-3 lg:grid-cols-4'>
+                    {loadingElements}
+                </div>
+            </div>
+            }
         </div>
     )
 }

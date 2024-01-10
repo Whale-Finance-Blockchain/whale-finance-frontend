@@ -6,18 +6,18 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
+// import { Input } from "@/components/ui/input"
+// import { Label } from "@/components/ui/label"
+// import {
+//   Sheet,
+//   SheetClose,
+//   SheetContent,
+//   SheetDescription,
+//   SheetFooter,
+//   SheetHeader,
+//   SheetTitle,
+//   SheetTrigger,
+// } from "@/components/ui/sheet"
 import {
     Select,
     SelectContent,
@@ -34,7 +34,6 @@ import blockies from 'ethereum-blockies-base64';
 import { useEffect, useState } from "react";
 import AvatarDefault from "../assets/whale_avatar1.png"
 import { switchNetwork } from "../utils/connectMetamask";
-import { Home } from 'lucide-react';
 
 export function Header({ isMetamaskInstalled, connectWallet, account, signer }: 
     { isMetamaskInstalled: boolean; connectWallet: any; account: string | null; signer: any;}) {
@@ -141,7 +140,7 @@ export function Header({ isMetamaskInstalled, connectWallet, account, signer }:
                 <div className="w-full flex flex-row justify-center mt-12">
                     <ModeToggle/>
                 </div>
-                <Sheet>
+                {/* <Sheet>
                     <SheetTrigger asChild>
                         <Button variant="ghost" className="w-full">Open KYC Manager</Button>
                     </SheetTrigger>
@@ -172,7 +171,7 @@ export function Header({ isMetamaskInstalled, connectWallet, account, signer }:
                         </SheetClose>
                         </SheetFooter>
                     </SheetContent>
-                </Sheet>
+                </Sheet> */}
             </div>
         </div>
     )

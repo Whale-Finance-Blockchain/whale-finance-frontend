@@ -29,6 +29,17 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableFooter,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from "@/components/ui/table"
+  
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 // import axios from 'axios';
@@ -42,6 +53,10 @@ import { QuotaTokenAbi } from '../contracts/QuotaToken';
 import { WhaleFinanceAbi } from '../contracts/WhaleFinance';
 import { ethers } from "ethers"
 import { MultiChainTokenAbi } from "@/contracts/MultichainToken"
+import { useTheme } from "@/components/theme-provider"
+import { getChartColors } from "@/utils/chartUtils"
+import { ChartTestComponent } from "@/components/ChartTest"
+import { Coins, DollarSign, TrendingUp, Wallet } from "lucide-react"
 
 type FundData = {
     id: number;
@@ -50,7 +65,18 @@ type FundData = {
     avatar: string;
 };
 
-
+const initialData = [
+    { time: '2018-12-22', value: 32.51 },
+    { time: '2018-12-23', value: 31.11 },
+    { time: '2018-12-24', value: 27.02 },
+    { time: '2018-12-25', value: 27.32 },
+    { time: '2018-12-26', value: 25.17 },
+    { time: '2018-12-27', value: 28.89 },
+    { time: '2018-12-28', value: 25.46 },
+    { time: '2018-12-29', value: 23.92 },
+    { time: '2018-12-30', value: 22.68 },
+    { time: '2018-12-31', value: 22.67 },
+]; 
 
 export default function FundInvestor({ account, provider, signer }: { account: string | null; provider: any; signer: any;}) {
 
@@ -195,14 +221,70 @@ export default function FundInvestor({ account, provider, signer }: { account: s
         return `${formattedNumber}`;
     }
 
+    const { theme } = useTheme();
+
+    const [chartColors, setChartColors] = useState(() => getChartColors());
+
+    useEffect(() => {
+        setTimeout(() => {
+            setChartColors(getChartColors());
+        }, 1); // Adjust delay
+    }, [theme]);
+
+
+    const invoices = [
+        {
+          invoice: "INV001",
+          paymentStatus: "Paid",
+          totalAmount: "$250.00",
+          paymentMethod: "Credit Card",
+        },
+        {
+          invoice: "INV002",
+          paymentStatus: "Pending",
+          totalAmount: "$150.00",
+          paymentMethod: "PayPal",
+        },
+        {
+          invoice: "INV003",
+          paymentStatus: "Unpaid",
+          totalAmount: "$350.00",
+          paymentMethod: "Bank Transfer",
+        },
+        {
+          invoice: "INV004",
+          paymentStatus: "Paid",
+          totalAmount: "$450.00",
+          paymentMethod: "Credit Card",
+        },
+        {
+          invoice: "INV005",
+          paymentStatus: "Paid",
+          totalAmount: "$550.00",
+          paymentMethod: "PayPal",
+        },
+        {
+          invoice: "INV006",
+          paymentStatus: "Pending",
+          totalAmount: "$200.00",
+          paymentMethod: "Bank Transfer",
+        },
+        {
+          invoice: "INV007",
+          paymentStatus: "Unpaid",
+          totalAmount: "$300.00",
+          paymentMethod: "Credit Card",
+        },
+    ]
+
     return (
         <div className='w-[100vw] h-[100vh] overflow-y-auto'>
             <FundHeroSection name={fundName} description={"Description"}  color="primary"/>
             <div className="px-12 pb-12">
                 <Tabs defaultValue="invest" className="w-full">
                     <TabsList className="mb-8 grid-cols-2">
-                        <TabsTrigger className="px-6" value="invest">Invest</TabsTrigger>
-                        <TabsTrigger className="px-6" value="fund_information">Fund Info</TabsTrigger>
+                        <TabsTrigger className="px-6" value="invest">Overview</TabsTrigger>
+                        <TabsTrigger className="px-6" value="fund_information">Portfolio Info</TabsTrigger>
                     </TabsList>
                     <TabsContent className="space-y-4" value="invest">
                         <Card>
@@ -283,33 +365,103 @@ export default function FundInvestor({ account, provider, signer }: { account: s
                                 </AlertDialog>
                             </CardContent>
                         </Card>
+                        <div className="grid grid-cols-1 gap-4 justify-center my-6 md:grid-cols-5 lg:grid-cols-5">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Price</CardTitle>
+                                </CardHeader>
+                                <CardContent className="text-xl flex flex-row space-x-2">
+                                    <Wallet />
+                                    <p>{formatToUSD(10)}</p>
+                                </CardContent>
+                            </Card>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Assets Under Management (TVL)</CardTitle>
+                                </CardHeader>
+                                <CardContent className="text-xl flex flex-row space-x-2">
+                                    <Coins />
+                                    <p>{formatToUSD(100000000)}</p>
+                                </CardContent>
+                            </Card>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Fund Performance (APY)</CardTitle>
+                                </CardHeader>
+                                <CardContent className="text-xl flex flex-row space-x-2">
+                                    <TrendingUp />
+                                    <p>+25%</p>
+                                </CardContent>
+                            </Card>
+                            <Card className="border-[1px] border-primary">
+                                <CardHeader>
+                                    <CardTitle>My Value Deposited</CardTitle>
+                                </CardHeader>
+                                <CardContent className="text-xl flex flex-row space-x-2">
+                                    <Coins />
+                                    <p>{formatToUSD(0)}</p>
+                                </CardContent>
+                            </Card>
+                            <Card className="border-[1px] border-primary">
+                                <CardHeader>
+                                    <CardTitle>My Total Return</CardTitle>
+                                </CardHeader>
+                                <CardContent className="text-xl flex flex-row space-x-2">
+                                    <TrendingUp />
+                                    <p>0%</p>
+                                </CardContent>
+                            </Card>
+                        </div>
                         <Card>
                             <CardHeader>
-                                <CardTitle>Performace</CardTitle>
+                                <CardTitle>Performance</CardTitle>
                                 <CardDescription>TVL</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="w-[200px] h-[100px]">0</div>
+                                <ChartTestComponent data={initialData} colors={chartColors}></ChartTestComponent>
                             </CardContent>
                         </Card>
                     </TabsContent>
                     <TabsContent className="space-y-4" value="fund_information">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Fund Creation Information</CardTitle>
-                                <CardDescription>DHASDJSVAGDVAGDASV</CardDescription>
+                                <CardTitle>Fund Regulation</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="w-[200px] h-[100px]">0</div>
+                                data about the fund here
                             </CardContent>
                         </Card>
                         <Card>
                             <CardHeader>
-                                <CardTitle>Tokens Allowed</CardTitle>
-                                <CardDescription>DHASDJSVAGDVAGDASV</CardDescription>
+                                <CardTitle>Tokens Allocation</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="w-[200px] h-[100px]">0</div>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                        <TableHead className="w-[100px]">Invoice</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead>Method</TableHead>
+                                        <TableHead className="text-right">Amount</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {invoices.map((invoice) => (
+                                        <TableRow key={invoice.invoice}>
+                                            <TableCell className="font-medium">{invoice.invoice}</TableCell>
+                                            <TableCell>{invoice.paymentStatus}</TableCell>
+                                            <TableCell>{invoice.paymentMethod}</TableCell>
+                                            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+                                        </TableRow>
+                                        ))}
+                                    </TableBody>
+                                    <TableFooter>
+                                        <TableRow>
+                                        <TableCell colSpan={3}>Total</TableCell>
+                                        <TableCell className="text-right">$2,500.00</TableCell>
+                                        </TableRow>
+                                    </TableFooter>
+                                </Table>
                             </CardContent>
                         </Card>
                     </TabsContent>

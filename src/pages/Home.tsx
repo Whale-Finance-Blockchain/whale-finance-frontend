@@ -2,12 +2,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import {
     NavigationMenu,
     NavigationMenuContent,
-    NavigationMenuIndicator,
     NavigationMenuItem,
     NavigationMenuLink,
     NavigationMenuList,
     NavigationMenuTrigger,
-    NavigationMenuViewport,
 } from "@/components/ui/navigation-menu"
 // import {
 //     Carousel,
@@ -17,10 +15,35 @@ import {
 //     CarouselPrevious,
 // } from "@/components/ui/carousel"
 import HeroSection from "@/components/HeroSection";
+import { ChartTestComponent } from "../components/ChartTest";
+import { useEffect, useState } from "react";
+import { useTheme } from '@/components/theme-provider';
+import { getChartColors } from '../utils/chartUtils'; 
 
+const initialData = [
+    { time: '2018-12-22', value: 32.51 },
+    { time: '2018-12-23', value: 31.11 },
+    { time: '2018-12-24', value: 27.02 },
+    { time: '2018-12-25', value: 27.32 },
+    { time: '2018-12-26', value: 25.17 },
+    { time: '2018-12-27', value: 28.89 },
+    { time: '2018-12-28', value: 25.46 },
+    { time: '2018-12-29', value: 23.92 },
+    { time: '2018-12-30', value: 22.68 },
+    { time: '2018-12-31', value: 22.67 },
+];   
 
 export default function Home() {
 
+    const { theme } = useTheme();
+
+    const [chartColors, setChartColors] = useState(() => getChartColors());
+
+    useEffect(() => {
+        setTimeout(() => {
+            setChartColors(getChartColors());
+        }, 1); // Adjust delay
+    }, [theme]);
 
     return (
         <div className='w-[100vw] h-[100vh] overflow-y-auto'>
@@ -116,6 +139,25 @@ export default function Home() {
                         </CardContent>
                     </Card>
                 </div>
+
+
+
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>LIGHTWEIGHT CHARTS</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartTestComponent data={initialData} colors={chartColors}></ChartTestComponent>
+                    </CardContent>
+                </Card>
+
+          
+
+
+
+
+
 
                 {/* <Carousel
                 opts={{

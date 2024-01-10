@@ -127,7 +127,7 @@ export default function FundsList({ signer }: { signer: any;}) {
                     </CardContent>
                 </>
                 :
-                <div className="flex items-center space-x-4 p-16">
+                <div className="flex items-center space-x-4 px-12 py-48">
                     <Skeleton className="h-12 w-12 rounded-full" />
                     <div className="space-y-2">
                         <Skeleton className="h-4 w-[250px]" />

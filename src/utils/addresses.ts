@@ -1,5 +1,5 @@
 export const WhaleFinanceAddress = "0xD118a82507d967a415C137d2825E218748E075cb";
-export const DrexAddress = "0x108D86c76Ca5947F3C2E0364DD2089e2Fb264513";
+export const WhaleTokenAddress = "0x108D86c76Ca5947F3C2E0364DD2089e2Fb264513";
 
 export const WEthAddress = "0x62bcE76CE75d4f8Ef8Ad8F3EB9746490099824e0";
 export const WZeniq = "0x74DC1C4ec10abE9F5C8A3EabF1A90b97cDc3Ead8";

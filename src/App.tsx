@@ -67,7 +67,11 @@ export default function App() {
             <Route path="/success" element={<SuccessPage />} />
             <Route path="/manager" element={<ManagerArea />} />
             <Route path="/manager/:id" element={
-              <FundManager/>}
+              <FundManager
+              account={account}
+              provider={provider}
+              signer={signer}
+              />}
             />
           </Route>
         </Routes>

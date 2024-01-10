@@ -53,6 +53,7 @@ import { WhaleFinanceAbi } from "../contracts/WhaleFinance";
 import { SafeAccountAbi } from "../contracts/SafeAccount";
 import { Trade } from "@uniswap/sdk";
 import { ArrowDownUp, ArrowRightLeft } from 'lucide-react';
+import { ethers } from "ethers"
 
 type FundData = {
     id: number;
@@ -61,19 +62,27 @@ type FundData = {
     avatar: string;
 };
 
-export default function FundManager() {
+export default function FundManager({ account, provider, signer} : { account: string | null; provider: any; signer: any;}) {
+
+    const navigator = useNavigate();
 
     const params = useParams();
     const fundId = params.id || '';
+    if(!fundId || fundId === ''){
+        navigator('/funds-list');
+    }
 
     const [fund, setFund] = useState<FundData | null>(null);
 
-    const [tokenA, setTokenA] = useState("USDC");
+    const [tokenA, setTokenA] = useState("DOT");
     const [tokenABalance, setTokenABalance] = useState(0);
-    const [tokenB, setTokenB] = useState("USDC");
+    const [tokenB, setTokenB] = useState("WBTC");
     const [tokenBBalance, setTokenBBalance] = useState(0);
 
+    
+
     const [amountSwap, setAmountSwap] = useState(0);
+    const [msgSwap, setMsgSwap] = useState("Approve");
 
     const chainsMock = {
         "Polkadot": "Polkadot",
@@ -89,7 +98,49 @@ export default function FundManager() {
 
     const [loading, setLoading] = useState<boolean>(false);
 
-    
+    async function getTokenABalance(){
+        try{
+            const tokenAAddress = allowedTokens[tokenA];
+            const tokenAContract = new ethers.Contract(tokenAAddress, QuotaTokenAbi, signer);
+            const tokenABalance = await tokenAContract.functions.balanceOf(account);
+            console.log(tokenABalance)
+            setTokenABalance(Number(ethers.utils.formatEther(tokenABalance[0]._hex)));
+
+            
+        } catch(err){
+            console.log(err);
+            toast({
+                title: "Error",
+                description: "Error getting balance"
+            })
+        }
+    }
+
+    async function getTokenBBalance(){
+        try{
+            const tokenAAddress = allowedTokens[tokenB];
+            const tokenAContract = new ethers.Contract(tokenAAddress, QuotaTokenAbi, signer);
+            const tokenABalance = await tokenAContract.functions.balanceOf(account);
+            console.log(tokenABalance)
+            setTokenBBalance(Number(ethers.utils.formatEther(tokenABalance[0]._hex)));
+
+            
+        } catch(err){
+            console.log(err);
+            toast({
+                title: "Error",
+                description: "Error getting balance"
+            })
+        }
+    }
+
+    useEffect(() =>{
+        getTokenABalance();
+    },[signer]);
+
+    useEffect(() => {
+        getTokenBBalance();
+    }, [signer])
 
     useEffect(() => {
         const hedgeFunds: FundData[] = [
@@ -124,38 +175,62 @@ export default function FundManager() {
 
     async function makeSwap(){
         if(tokenA === tokenB){
-            alert("Please choose different tokens!");
+            toast({
+                title: "Same tokens not allowed",
+                description: "Please select different tokens"
+            })
             return;
         }
 
-        // if(tokenA <= 0){
-        //     alert("Please choose a valid amount!");
-        //     return;
-        // }
-
-        // if(tokenA > tokenABalance){
-        //     alert("You don't have enough balance!");
-        //     return;
-        // }
-
-        // setLoading(true)
-
         try{
+            setLoading(false);
             const tokenAAddress = allowedTokens[tokenA];
             const tokenBAddress = allowedTokens[tokenB];
 
-            console.log(tokenAAddress, tokenBAddress);
+            const whaleFinanceContract = new ethers.Contract(WhaleFinanceAddress, WhaleFinanceAbi, signer);
+            
+            setLoading(true);
+            const fundAddress = await whaleFinanceContract.functions.fundsAddresses(fundId);
+
+            
+            let path: any[] = [];
+
+            path = [tokenAAddress, tokenBAddress];
+
+            // const routerContract = new ethers.Contract(SwapRouter, ["function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"], props.signer);
+
+            const deadline = Math.floor(Date.now() / 1000) + 3600;
+
+            const fundContract = new ethers.Contract(fundAddress[0], SafeAccountAbi, signer);
+
+
+            const txApprove = await fundContract.functions.executeApprove(tokenAAddress, SwapRouter, ethers.utils.parseEther(String(amountSwap)));
+
+            await txApprove.wait();
+
+
+            const txSwap = await fundContract.functions.executeSwapExactTokensForTokens(
+                ethers.utils.parseEther(String(amountSwap)), 0, path, account, deadline);
+
+            await txSwap.wait();
 
         } catch(err){
+            toast({
+                title: "Swapping Error",
+                description: "Error during swap"
+            })
             console.log(err);
         } finally{
-            // setLoading(false);
+            setLoading(false);
         }
     }
 
     async function makeBridge(){
         if(chainA === chainB){
-            alert("Please choose different chains!");
+            toast({
+                title: "Same chains not allowed",
+                description: "Please select different chains"
+            })
             return;
         }
 
@@ -171,7 +246,7 @@ export default function FundManager() {
 
     return (
         <div className='w-[100vw] h-[100vh] overflow-y-auto'>
-            <FundHeroSection fund={fund} color="secondary"/>
+            <FundHeroSection name={fund?.name} description={fund?.description} color="secondary"/>
             <div className="px-12 pb-12">
                 <Tabs defaultValue="swap" className="w-full">
                     <TabsList className="mb-8 grid-cols-2">
@@ -188,7 +263,7 @@ export default function FundManager() {
                             </CardHeader>
                             <CardContent className="my-6 space-y-4 flex justify-center">
                                 <div className="lg:w-[50%] flex flex-col space-y-4">
-                                    <Label className="text-sm text-primary indent-2">Pay with:</Label>
+                                    <Label className="text-sm text-primary indent-2">Choose token to swap:</Label>
                                     <div className="flex-1 flex flex-row space-x-1">
                                         <Input 
                                             id="tokenA" 
@@ -201,7 +276,9 @@ export default function FundManager() {
                                         <TooltipProvider>
                                             <Tooltip>
                                                 <TooltipTrigger>
-                                                    <Button className="underline text-primary px-2" variant="outline">Max</Button>
+                                                    <Button 
+                                                    onClick={() => setAmountSwap(tokenABalance)}
+                                                    className="underline text-primary px-2" variant="outline">Max</Button>
                                                 </TooltipTrigger>
                                                 <TooltipContent>
                                                 <p>Use everything in the balance</p>
@@ -247,7 +324,7 @@ export default function FundManager() {
                                                     className="flex-1 text-sm flex flex-row items-center space-x-4 bg-primarylighter border-primarylighter shadow-sm px-4"
                                                 >
                                                     <p>{`Amount of ${tokenB} :`}</p>
-                                                    <p className="text-md font-bold">{Number(tokenBBalance).toFixed(3)}</p>
+                                                    <p className="text-md font-bold">{Number(0).toFixed(3)}</p>
                                                 </TooltipTrigger>
                                                 <TooltipContent side="top">
                                                 <p>This is the amount you will receive of the choosen token (in the right) making the swap</p>
@@ -292,7 +369,7 @@ export default function FundManager() {
                                                 Please wait
                                             </Button>
                                             :
-                                            <Button className="w-[200px] font-bold self-center rounded">Swap</Button>
+                                            <Button className="w-[200px] font-bold self-center rounded">{msgSwap}</Button>
                                             }
                                         </AlertDialogTrigger>
                                         <AlertDialogContent>
@@ -305,7 +382,7 @@ export default function FundManager() {
                                             <AlertDialogFooter>
                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                                             <AlertDialogAction>
-                                                <p onClick={makeSwap}>Swap</p>
+                                                <p onClick={makeSwap}>{msgSwap}</p>
                                             </AlertDialogAction>
                                             </AlertDialogFooter>
                                         </AlertDialogContent>
@@ -389,7 +466,9 @@ export default function FundManager() {
                                             <TooltipProvider>
                                                 <Tooltip>
                                                     <TooltipTrigger>
-                                                        <Button className="underline text-primary px-2" variant="outline">Max</Button>
+                                                        <Button 
+                                                        
+                                                        className="underline text-primary px-2" variant="outline">Max</Button>
                                                     </TooltipTrigger>
                                                     <TooltipContent>
                                                     <p>Use everything in the balance</p>

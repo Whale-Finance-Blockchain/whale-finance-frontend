@@ -31,9 +31,9 @@ export default function FundsList({ signer }: { signer: any;}) {
             try{
                 const provider = getMetamaskProvider() as ethers.providers.Web3Provider;
                 const whaleFinanceContract = new ethers.Contract(WhaleFinanceAddress, WhaleFinanceAbi, provider);
-                const numberFundsBigNumber = await whaleFinanceContract._fundIdCounter() as ethers.BigNumber[];
+                const numberFundsBigNumber = await whaleFinanceContract._fundIdCounter() as ethers.BigNumber;
                 console.log(numberFundsBigNumber);
-                const numberFunds = parseInt(numberFundsBigNumber[0]._hex);
+                const numberFunds = parseInt(numberFundsBigNumber._hex);
                 console.log(numberFunds);
 
                 const fundsList: FundData[] = [];

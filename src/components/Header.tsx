@@ -43,6 +43,7 @@ export function Header({ isMetamaskInstalled, connectWallet, account, signer }:
     const [avatar, setAvatar] = useState('');
 
     const [selectedNetwork, setSelectedNetwork] = useState('');
+    const [networkIcons, setNetworkIcons] = useState<{ [key: string]: string }>({});
 
     const networks: { [key: string]: number } = {
         'Ethereum': 1,
@@ -52,12 +53,6 @@ export function Header({ isMetamaskInstalled, connectWallet, account, signer }:
         // 'Optimism': 10,
         // 'Avalanche': 43114,
         // 'Celo': 42220,
-    };
-
-    const networkIcons: { [key: string]: string } = {
-        'Ethereum': 'src/assets/ETH-icon.png',
-        'Polygon': 'src/assets/Polygon-icon.png',
-        'BNB Chain': 'src/assets/BNB-icon.png'
     };
 
     const handleNetworkChange = async (networkName: string) => {
@@ -82,6 +77,16 @@ export function Header({ isMetamaskInstalled, connectWallet, account, signer }:
     
     useEffect(() => {
         getAccountAvatar().then(setAvatar);
+
+        const iconsMock: { [key: string]: string } = {
+            'Ethereum': 'src/assets/ETH-icon.png',
+            'Polygon': 'src/assets/Polygon-icon.png',
+            'BNB Chain': 'src/assets/BNB-icon.png'
+        };
+
+        setNetworkIcons(iconsMock);
+
+        console.log(networkIcons['BNB Chain']);
     }, [signer]);
 
 
@@ -123,7 +128,7 @@ export function Header({ isMetamaskInstalled, connectWallet, account, signer }:
                                     value={key}
                                 >
                                     <div className="flex flex-row items-center space-x-2">
-                                        <img className="h-4" src={networkIcons[key]} alt={key}/>
+                                        <img className="h-4" src={networkIcons[key]} alt=""/>
                                         <p className="">{key}</p>
                                     </div>
                                 </SelectItem>

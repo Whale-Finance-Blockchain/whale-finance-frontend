@@ -33,6 +33,12 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 // import axios from 'axios';
@@ -41,6 +47,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Label } from "@radix-ui/react-label";
 import { ReloadIcon } from "@radix-ui/react-icons"
 import FundHeroSection from "@/components/FundHeroSection";
+import { SwapRouter, WhaleFinanceAddress, allowedTokens } from "../utils/addresses";
+import { QuotaTokenAbi } from "../contracts/QuotaToken";
+import { WhaleFinanceAbi } from "../contracts/WhaleFinance";
+import { SafeAccountAbi } from "../contracts/SafeAccount";
+import { Trade } from "@uniswap/sdk";
+import { ArrowDownUp, ArrowRightLeft } from 'lucide-react';
 
 type FundData = {
     id: number;
@@ -54,61 +66,30 @@ export default function FundManager() {
     const params = useParams();
     const fundId = params.id || '';
 
-    const [loading, setLoading] = useState<boolean>(false);
     const [fund, setFund] = useState<FundData | null>(null);
 
-    // const navigator = useNavigate();
+    const [tokenA, setTokenA] = useState("USDC");
+    const [tokenABalance, setTokenABalance] = useState(0);
+    const [tokenB, setTokenB] = useState("USDC");
+    const [tokenBBalance, setTokenBBalance] = useState(0);
 
-    // const [funds, setFunds] = useState<DataPoint[]>([]);
+    const [amountSwap, setAmountSwap] = useState(0);
 
-    // const fundsElements = funds.map((fund, idx) =>
+    const chainsMock = {
+        "Polkadot": "Polkadot",
+        "Acala": "Acala",
+        "Moonbeam": "Moonbeam",
+        "Kusama": "Kusama",
+    } as {
+        [key: string]: string;
+    }
 
-    //     return(<div onClick={() => navigator(`/fundslist/${fund.id}`)}>
+    const [chainA, setchainA] = useState("Polkadot");
+    const [chainB, setchainB] = useState("Acala");
 
-    //     </div>)
-    // )
+    const [loading, setLoading] = useState<boolean>(false);
 
-    // const [price, setPrice] = useState(0);
-
-    // async function fetchCryptoPrice(symbol: any) {
-    //     try {
-    //       const response = await axios.get(`http://localhost:3000/api/crypto/price/${symbol}`);
-    //       return response.data;
-    //     } catch (error) {
-    //       console.error('Error fetching crypto price:', error);
-    //       // Handle error (e.g., show an alert or message to the user)
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     fetchCryptoPrice('BTC').then(data => {
-    //       setPrice(data.price);
-    //     });
-    // }, []);
-
-    // const FormSchema = z.object({
-    //     username: z.string().min(2, {
-    //       message: "Username must be at least 2 characters.",
-    //     }),
-    // })
-
-    // const form = useForm<z.infer<typeof FormSchema>>({
-    //     resolver: zodResolver(FormSchema),
-    //     defaultValues: {
-    //       username: "",
-    //     },
-    // })
-     
-    // function onSubmit(data: z.infer<typeof FormSchema>) {
-    //     toast({
-    //       title: "You submitted the following values:",
-    //       description: (
-    //         <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-    //             <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-    //         </pre>
-    //       ),
-    //     })
-    // }
+    
 
     useEffect(() => {
         const hedgeFunds: FundData[] = [
@@ -129,86 +110,335 @@ export default function FundManager() {
         setFund(selectedFund);
     }, [fundId]);
 
+    function performeChangeSwap(){
+        setTokenA(tokenB);
+        setTokenABalance(tokenBBalance);
+        setTokenB(tokenA);
+        setTokenBBalance(tokenABalance);
+    }
+
+    function performeChangeBridge(){
+        setchainA(chainB);
+        setchainB(chainA);
+    }
+
+    async function makeSwap(){
+        if(tokenA === tokenB){
+            alert("Please choose different tokens!");
+            return;
+        }
+
+        // if(tokenA <= 0){
+        //     alert("Please choose a valid amount!");
+        //     return;
+        // }
+
+        // if(tokenA > tokenABalance){
+        //     alert("You don't have enough balance!");
+        //     return;
+        // }
+
+        // setLoading(true)
+
+        try{
+            const tokenAAddress = allowedTokens[tokenA];
+            const tokenBAddress = allowedTokens[tokenB];
+
+            console.log(tokenAAddress, tokenBAddress);
+
+        } catch(err){
+            console.log(err);
+        } finally{
+            // setLoading(false);
+        }
+    }
+
+    async function makeBridge(){
+        if(chainA === chainB){
+            alert("Please choose different chains!");
+            return;
+        }
+
+        try{
+            console.log(chainA, chainB);
+
+        } catch(err){
+            console.log(err);
+        } finally{
+            // setLoading(false);
+        }
+    }
+
     return (
         <div className='w-[100vw] h-[100vh] overflow-y-auto'>
             <FundHeroSection fund={fund} color="secondary"/>
             <div className="px-12 pb-12">
                 <Tabs defaultValue="swap" className="w-full">
                     <TabsList className="mb-8 grid-cols-2">
-                        <TabsTrigger className="px-6" value="swap">Swap</TabsTrigger>
+                        <TabsTrigger className="px-6" value="swap">Swap & Bridge</TabsTrigger>
                         <TabsTrigger className="px-6" value="fund_information">Fund Info</TabsTrigger>
                     </TabsList>
                     <TabsContent className="space-y-4" value="swap">
+
+{/* SWAP CARD */}
                         <Card>
                             <CardHeader>
                                 <CardTitle>Swap</CardTitle>
-                                <CardDescription>You can choose the amount of USD to invest in this fund</CardDescription>
+                                <CardDescription>You can choose the tokens and amounts to perform the swap</CardDescription>
                             </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="flex space-x-4">
+                            <CardContent className="my-6 space-y-4 flex justify-center">
+                                <div className="lg:w-[50%] flex flex-col space-y-4">
+                                    <Label className="text-sm text-primary indent-2">Pay with:</Label>
                                     <div className="flex-1 flex flex-row space-x-1">
-                                        <Input id="tokenA" type="number" placeholder="ex. 129" ></Input>
-                                        <Select>
-                                            <SelectTrigger className="bg-secondary w-[180px]">
+                                        <Input 
+                                            id="tokenA" 
+                                            type="number" 
+                                            placeholder={`Amount of ${tokenA}`}
+                                            className="flex-1"
+                                            value={amountSwap}
+                                            onChange={(e) => setAmountSwap(parseFloat(e.target.value))} 
+                                        />
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <Button className="underline text-primary px-2" variant="outline">Max</Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                <p>Use everything in the balance</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                        <Select
+                                            value={tokenA}
+                                            onValueChange={(value) => setTokenA(value)}
+                                        >
+                                            <SelectTrigger className="bg-secondary w-[150px]">
                                                 <SelectValue placeholder="Select a token" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 <SelectGroup>
                                                 <SelectLabel>Tokens</SelectLabel>
-                                                <SelectItem value="apple">Apple</SelectItem>
-                                                <SelectItem value="banana">Banana</SelectItem>
-                                                <SelectItem value="blueberry">Blueberry</SelectItem>
-                                                <SelectItem value="grapes">Grapes</SelectItem>
-                                                <SelectItem value="pineapple">Pineapple</SelectItem>
+                                                {Object.keys(allowedTokens).map((key) => { 
+                                                    return (
+                                                        <SelectItem
+                                                            key={key}
+                                                            value={key}
+                                                        >
+                                                            {key}
+                                                        </SelectItem>
+                                                    )
+                                                })}
                                                 </SelectGroup>
                                             </SelectContent>
                                         </Select>
                                     </div>
+                                    <div className="w-full flex justify-end">
+                                        <Label className="flex flex-row w-[150px] text-sm indent-3">
+                                            Balance:
+                                            <p className="text-md font-bold">{Number(tokenABalance).toFixed(3)}</p>
+                                        </Label>
+                                    </div>
+                                    <Button className="self-center rounded-full" onClick={() => performeChangeSwap()}><ArrowDownUp/></Button>
+                                    <Label className="text-sm text-primary indent-2">Receive:</Label>
+                                    <div className="flex-1 flex flex-row space-x-1">
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger
+                                                    className="flex-1 text-sm flex flex-row items-center space-x-4 bg-primarylighter border-primarylighter shadow-sm px-4"
+                                                >
+                                                    <p>{`Amount of ${tokenB} :`}</p>
+                                                    <p className="text-md font-bold">{Number(tokenBBalance).toFixed(3)}</p>
+                                                </TooltipTrigger>
+                                                <TooltipContent side="top">
+                                                <p>This is the amount you will receive of the choosen token (in the right) making the swap</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                        <Select
+                                            value={tokenB}
+                                            onValueChange={(value) => setTokenB(value)}
+                                        >
+                                            <SelectTrigger className="bg-secondary w-[150px]">
+                                                <SelectValue placeholder="Select a token" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                <SelectLabel>Tokens</SelectLabel>
+                                                {Object.keys(allowedTokens).map((key) => { 
+                                                    return (
+                                                        <SelectItem
+                                                            key={key}
+                                                            value={key}
+                                                        >
+                                                            {key}
+                                                        </SelectItem>
+                                                    )
+                                                })}
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="w-full flex justify-end">
+                                        <Label className="flex flex-row w-[150px] text-sm indent-3">
+                                            Balance:
+                                            <p className="text-md font-bold">{Number(tokenBBalance).toFixed(3)}</p>
+                                        </Label>
+                                    </div>
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
                                             {loading ?
-                                            <Button disabled>
+                                            <Button disabled className="w-[200px] self-center rounded">
                                                 <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                                                 Please wait
                                             </Button>
                                             :
-                                            <Button>Swap</Button>
+                                            <Button className="w-[200px] font-bold self-center rounded">Swap</Button>
                                             }
                                         </AlertDialogTrigger>
                                         <AlertDialogContent>
                                             <AlertDialogHeader>
                                             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                             <AlertDialogDescription>
-                                                This action cannot be undone. This will permanently delete your account
-                                                and remove your data from our servers.
+                                                This action cannot be undone.
                                             </AlertDialogDescription>
                                             </AlertDialogHeader>
                                             <AlertDialogFooter>
                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                                             <AlertDialogAction>
-                                                Swap
+                                                <p onClick={makeSwap}>Swap</p>
                                             </AlertDialogAction>
                                             </AlertDialogFooter>
                                         </AlertDialogContent>
                                     </AlertDialog>
-                                    <div className="flex-1 flex flex-row space-x-1">
-                                        <Input id="tokenB" type="number" placeholder="ex. 129" ></Input>
-                                        <Select>
-                                            <SelectTrigger className="bg-secondary w-[180px]">
-                                                <SelectValue placeholder="Select a token" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                <SelectLabel>Tokens</SelectLabel>
-                                                <SelectItem value="apple">Apple</SelectItem>
-                                                <SelectItem value="banana">Banana</SelectItem>
-                                                <SelectItem value="blueberry">Blueberry</SelectItem>
-                                                <SelectItem value="grapes">Grapes</SelectItem>
-                                                <SelectItem value="pineapple">Pineapple</SelectItem>
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+{/* BRIDGE CARD */}
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Bridge</CardTitle>
+                                <CardDescription>You can choose the chains and the amount to perform the bridge</CardDescription>
+                            </CardHeader>
+                            <CardContent className="my-6 space-y-4 flex justify-center">
+                                <div className="lg:w-[50%] flex flex-col space-y-4">
+                                    <div className="flex flex-row space-x-16">
+                                        <div className="flex-1 flex flex-col space-y-2">
+                                            <Label className="text-sm text-primary indent-2">Origin Chain</Label>
+                                            <Select
+                                                value={chainA}
+                                                onValueChange={(value) => setchainA(value)}
+                                            >
+                                                <SelectTrigger className="flex-1 bg-secondary">
+                                                    <SelectValue placeholder="Select a token" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                    <SelectLabel>Tokens</SelectLabel>
+                                                    {Object.keys(chainsMock).map((key) => { 
+                                                        return (
+                                                            <SelectItem
+                                                                key={key}
+                                                                value={key}
+                                                            >
+                                                                {key}
+                                                            </SelectItem>
+                                                        )
+                                                    })}
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <Button className="self-end rounded-full" onClick={() => performeChangeBridge()}><ArrowRightLeft/></Button>
+                                        <div className="flex-1 flex flex-col space-y-2">
+                                            <Label className="text-sm text-primary indent-2">Destination Chain:</Label>
+                                            <Select
+                                                value={chainB}
+                                                onValueChange={(value) => setchainB(value)}
+                                            >
+                                                <SelectTrigger className="flex-1 bg-secondary">
+                                                    <SelectValue placeholder="Select a token" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                    <SelectLabel>Tokens</SelectLabel>
+                                                    {Object.keys(chainsMock).map((key) => { 
+                                                        return (
+                                                            <SelectItem
+                                                                key={key}
+                                                                value={key}
+                                                            >
+                                                                {key}
+                                                            </SelectItem>
+                                                        )
+                                                    })}
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
                                     </div>
+                                    <div className="flex-1 space-y-1">
+                                        <Label className="text-sm ml-2">Amount</Label>
+                                        <div className="flex flex-row space-x-1">
+                                            <Input 
+                                                id="invest" 
+                                                type="number" 
+                                                placeholder="ex. 129"
+                                            />
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger>
+                                                        <Button className="underline text-primary px-2" variant="outline">Max</Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                    <p>Use everything in the balance</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        </div>
+                                    </div>
+                                    <div className="w-full flex justify-end">
+
+{/* NEED TO CHANGE THE BALANCE */}
+
+                                        <Label className="flex flex-row w-[150px] text-sm indent-3">
+                                            Balance:
+                                            <p className="text-md font-bold">{Number(tokenBBalance).toFixed(3)}</p>
+                                        </Label>
+                                    </div>
+                                    <div className="flex-1 flex flex-col items-start space-y-1 bg-primarylighter rounded px-4 py-2">
+                                        <Label className="text-sm">Destination Account:</Label>
+                                        <div className="flex flex-col items-center justify-center text-sm">
+                                            <p>x8941234KJASNDU9AS0DGH978ASDG7A8S9UDGASIU</p>
+                                        </div>
+                                    </div>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            {loading ?
+                                            <Button disabled className="w-[200px] self-center rounded">
+                                                <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                                                Please wait
+                                            </Button>
+                                            :
+                                            <Button className="w-[200px] font-bold self-center rounded">Bridge</Button>
+                                            }
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                This action cannot be undone.
+                                            </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction>
+                                                <p onClick={makeBridge}>Bridge</p>
+                                            </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                 </div>
                             </CardContent>
                         </Card>

@@ -8,6 +8,6 @@ interface Ethereum {
 interface Window {
     ethereum?: {
       isMetaMask?: boolean;
-      request?: (...args: any[]) => Promise<void>;
+      request: (request: { method: string, params?: Array<any> }) => Promise<any>;
     };
   }

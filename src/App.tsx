@@ -68,12 +68,17 @@ export default function App() {
                 signer={signer} 
               />} />
             <Route path="/success" element={<SuccessPage />} />
-            <Route path="/manager" element={<ManagerArea />} />
+            <Route path="/manager" element={
+              <ManagerArea 
+                account={account}
+                provider={provider}
+                signer={signer}
+              />} />
             <Route path="/manager/:id" element={
               <FundManager
-              account={account}
-              provider={provider}
-              signer={signer}
+                account={account}
+                provider={provider}
+                signer={signer}
               />}
             />
           </Route>

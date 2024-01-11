@@ -22,15 +22,15 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+// import {
+//     Select,
+//     SelectContent,
+//     SelectGroup,
+//     SelectItem,
+//     SelectLabel,
+//     SelectTrigger,
+//     SelectValue,
+// } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import HeroSection from "@/components/HeroSection"
@@ -369,7 +369,7 @@ export default function CreateFund({ account, signer }: { account: string | null
                                         </div>
                                     </div>
                                 </div>
-                                <div className="space-y-2">
+                                {/* <div className="space-y-2">
                                     <div className="space-y-1">
                                         <Label>Choosen Dex</Label>
                                         <Select>
@@ -388,7 +388,7 @@ export default function CreateFund({ account, signer }: { account: string | null
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                         </CardContent>
                         <CardFooter>

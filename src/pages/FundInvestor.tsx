@@ -261,44 +261,26 @@ export default function FundInvestor({ account, provider, signer }: { account: s
         {
           token: "TOKEN1",
           weight: "10%",
-          totalAmount: "$250.00",
+          totalAmount: "$250,000.00",
           price: "$10",
         },
         {
           token: "TOKEN2",
           weight: "20%",
-          totalAmount: "$150.00",
+          totalAmount: "$150,000.00",
           price: "$20",
         },
         {
           token: "TOKEN3",
-          weight: "Unpaid",
-          totalAmount: "$350.00",
-          price: "Bank Transfer",
+          weight: "30%",
+          totalAmount: "$350,000.00",
+          price: "$25",
         },
         {
           token: "TOKEN4",
-          weight: "Paid",
-          totalAmount: "$450.00",
-          price: "Credit Card",
-        },
-        {
-          token: "TOKEN5",
-          weight: "Paid",
-          totalAmount: "$550.00",
-          price: "PayPal",
-        },
-        {
-          token: "TOKEN6",
-          weight: "Pending",
-          totalAmount: "$200.00",
-          price: "Bank Transfer",
-        },
-        {
-          token: "TOKEN7",
-          weight: "Unpaid",
-          totalAmount: "$300.00",
-          price: "Credit Card",
+          weight: "40%",
+          totalAmount: "$450,000.00",
+          price: "$15",
         },
     ]
 
@@ -447,7 +429,7 @@ export default function FundInvestor({ account, provider, signer }: { account: s
                         <Card>
                             <CardHeader>
                                 <CardTitle>Performance</CardTitle>
-                                <CardDescription>TVL</CardDescription>
+                                <CardDescription>Price</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <ChartTestComponent data={initialData} colors={chartColors}></ChartTestComponent>
@@ -455,14 +437,14 @@ export default function FundInvestor({ account, provider, signer }: { account: s
                         </Card>
                     </TabsContent>
                     <TabsContent className="space-y-4" value="fund_information">
-                        <Card>
+                        {/* <Card>
                             <CardHeader>
                                 <CardTitle>Fund Regulation</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 data about the fund here
                             </CardContent>
-                        </Card>
+                        </Card> */}
                         <Card>
                             <CardHeader>
                                 <CardTitle>Tokens Allocation</CardTitle>
@@ -489,7 +471,7 @@ export default function FundInvestor({ account, provider, signer }: { account: s
                                     </TableBody>
                                     <TableFooter>
                                         <TableRow>
-                                        <TableCell colSpan={4} className="text-right">$2,500.00</TableCell>
+                                        <TableCell colSpan={4} className="text-right">$1,200,000.00</TableCell>
                                         </TableRow>
                                     </TableFooter>
                                 </Table>

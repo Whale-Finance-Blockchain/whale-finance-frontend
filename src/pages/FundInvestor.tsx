@@ -232,48 +232,48 @@ export default function FundInvestor({ account, provider, signer }: { account: s
     }, [theme]);
 
 
-    const invoices = [
+    const allocation = [
         {
-          invoice: "INV001",
-          paymentStatus: "Paid",
+          token: "TOKEN1",
+          weight: "10%",
           totalAmount: "$250.00",
-          paymentMethod: "Credit Card",
+          price: "$10",
         },
         {
-          invoice: "INV002",
-          paymentStatus: "Pending",
+          token: "TOKEN2",
+          weight: "20%",
           totalAmount: "$150.00",
-          paymentMethod: "PayPal",
+          price: "$20",
         },
         {
-          invoice: "INV003",
-          paymentStatus: "Unpaid",
+          token: "TOKEN3",
+          weight: "Unpaid",
           totalAmount: "$350.00",
-          paymentMethod: "Bank Transfer",
+          price: "Bank Transfer",
         },
         {
-          invoice: "INV004",
-          paymentStatus: "Paid",
+          token: "TOKEN4",
+          weight: "Paid",
           totalAmount: "$450.00",
-          paymentMethod: "Credit Card",
+          price: "Credit Card",
         },
         {
-          invoice: "INV005",
-          paymentStatus: "Paid",
+          token: "TOKEN5",
+          weight: "Paid",
           totalAmount: "$550.00",
-          paymentMethod: "PayPal",
+          price: "PayPal",
         },
         {
-          invoice: "INV006",
-          paymentStatus: "Pending",
+          token: "TOKEN6",
+          weight: "Pending",
           totalAmount: "$200.00",
-          paymentMethod: "Bank Transfer",
+          price: "Bank Transfer",
         },
         {
-          invoice: "INV007",
-          paymentStatus: "Unpaid",
+          token: "TOKEN7",
+          weight: "Unpaid",
           totalAmount: "$300.00",
-          paymentMethod: "Credit Card",
+          price: "Credit Card",
         },
     ]
 
@@ -439,26 +439,25 @@ export default function FundInvestor({ account, provider, signer }: { account: s
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                        <TableHead className="w-[100px]">Invoice</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead>Method</TableHead>
+                                        <TableHead className="">Asset</TableHead>
+                                        <TableHead className="text-right">Allocation</TableHead>
+                                        <TableHead className="text-right">Price</TableHead>
                                         <TableHead className="text-right">Amount</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {invoices.map((invoice) => (
-                                        <TableRow key={invoice.invoice}>
-                                            <TableCell className="font-medium">{invoice.invoice}</TableCell>
-                                            <TableCell>{invoice.paymentStatus}</TableCell>
-                                            <TableCell>{invoice.paymentMethod}</TableCell>
-                                            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+                                        {allocation.map((token) => (
+                                        <TableRow key={token.token}>
+                                            <TableCell className="">{token.token}</TableCell>
+                                            <TableCell className="text-right">{token.weight}</TableCell>
+                                            <TableCell className="text-right">{token.price}</TableCell>
+                                            <TableCell className="text-right">{token.totalAmount}</TableCell>
                                         </TableRow>
                                         ))}
                                     </TableBody>
                                     <TableFooter>
                                         <TableRow>
-                                        <TableCell colSpan={3}>Total</TableCell>
-                                        <TableCell className="text-right">$2,500.00</TableCell>
+                                        <TableCell colSpan={4} className="text-right">$2,500.00</TableCell>
                                         </TableRow>
                                     </TableFooter>
                                 </Table>

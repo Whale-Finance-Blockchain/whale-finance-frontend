@@ -159,14 +159,14 @@ export default function FundsList({ signer }: { signer: any;}) {
         <div className='w-[100vw] h-[100vh] overflow-y-auto'>
             {!loading ? 
             <div className="p-12">
-                <HeroSection title="Dashboard"/>
+                <HeroSection title="Funds List"/>
                 <div className='grid grid-cols-1 gap-4 justify-center my-6 md:grid-cols-3 lg:grid-cols-4'>
                     {fundsElements}
                 </div>
             </div>
             : 
             <div className="p-12">
-                <HeroSection title="Dashboard"/>
+                <HeroSection title="Funds List"/>
                 <div className='grid grid-cols-1 gap-4 justify-center my-6 md:grid-cols-3 lg:grid-cols-4'>
                     {loadingElements}
                 </div>

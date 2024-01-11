@@ -11,6 +11,7 @@ import { AiOutlineArrowUp, AiOutlineArrowDown } from "react-icons/ai";
 import { ethers } from 'ethers';
 import { WhaleFinanceAbi } from '../contracts/WhaleFinance';
 import { WhaleFinanceAddress } from '../utils/addresses';
+import { Label } from "@radix-ui/react-label";
 
 type FundData = {
     id: number;
@@ -168,14 +169,16 @@ export default function ManagerArea({ account, provider, signer }: { account: st
         <div className='w-[100vw] h-[100vh] overflow-y-auto'>
             {!loading ? 
             <div className="p-12">
-                <HeroSection title="Dashboard"/>
+                <HeroSection title="Funds List"/>
+                <h2 className="mb-12">Manager Area to see own funds created</h2>
                 <div className='grid grid-cols-1 gap-4 justify-center my-6 md:grid-cols-3 lg:grid-cols-4'>
                     {fundsElements}
                 </div>
             </div>
             : 
             <div className="p-12">
-                <HeroSection title="Dashboard"/>
+                <HeroSection title="Funds List"/>
+                <h2 className="mb-12">Manager Area to see own funds created</h2>
                 <div className='grid grid-cols-1 gap-4 justify-center my-6 md:grid-cols-3 lg:grid-cols-4'>
                     {loadingElements}
                 </div>

@@ -56,6 +56,7 @@ import { ArrowDownUp, ArrowRightLeft } from 'lucide-react';
 import { ethers } from "ethers"
 import { networks } from "@/utils/chains"
 import { MultiChainTokenAbi } from "@/contracts/MultichainToken"
+import { ChartTestComponent } from "@/components/ChartTest"
 
 type FundData = {
     id: number;
@@ -543,33 +544,12 @@ export default function FundManager({ account, provider, signer} : { account: st
                                 </div>
                             </CardContent>
                         </Card>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Performace</CardTitle>
-                                <CardDescription>TVL</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="w-[200px] h-[100px]">0</div>
-                            </CardContent>
-                        </Card>
                     </TabsContent>
                     <TabsContent className="space-y-4" value="fund_information">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Fund Creation Information</CardTitle>
-                                <CardDescription>DHASDJSVAGDVAGDASV</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="w-[200px] h-[100px]">0</div>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Tokens Allowed</CardTitle>
-                                <CardDescription>DHASDJSVAGDVAGDASV</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="w-[200px] h-[100px]">0</div>
                             </CardContent>
                         </Card>
                     </TabsContent>

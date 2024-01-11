@@ -4,14 +4,17 @@ import Home from "./pages/Home"
 import Layout from "./pages/Layout"
 import CreateFund from "./pages/CreateFund"
 import FundsList from "./pages/Fundslist"
-import React from "react"
+import React, { useState } from "react"
 import { connectMetamask } from "./utils/connectMetamask"
 import ManagerArea from "./pages/Manager"
 import FundInvestor from "./pages/FundInvestor"
 import FundManager from "./pages/FundManager"
 import SuccessPage from "./pages/Success"
+import { ChainContext } from "./contexts/ChainContext"
 
 export default function App() {
+
+  const [chain, setChain] = useState<number>(253253);
 
   //handle Metamask wallet connection
   const [isMetamaskInstalled, setIsMetamaskInstalled] = React.useState<boolean>(false);
@@ -35,7 +38,7 @@ export default function App() {
   }
 
   return (
-    <>
+    <ChainContext.Provider value={{chain, setChain}}>
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
@@ -77,6 +80,6 @@ export default function App() {
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
-  </>
+  </ChainContext.Provider>
   )
 }

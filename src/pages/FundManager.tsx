@@ -47,13 +47,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Label } from "@radix-ui/react-label";
 import { ReloadIcon } from "@radix-ui/react-icons"
 import FundHeroSection from "@/components/FundHeroSection";
-import { SwapRouter, WhaleFinanceAddress, allowedTokens } from "../utils/addresses";
+import { SwapRouter, WhaleFinanceAddress, WhaleTokenAddress, allowedTokens } from "../utils/addresses";
 import { QuotaTokenAbi } from "../contracts/QuotaToken";
 import { WhaleFinanceAbi } from "../contracts/WhaleFinance";
 import { SafeAccountAbi } from "../contracts/SafeAccount";
 import { Trade } from "@uniswap/sdk";
 import { ArrowDownUp, ArrowRightLeft } from 'lucide-react';
 import { ethers } from "ethers"
+import { networks } from "@/utils/chains"
+import { MultiChainTokenAbi } from "@/contracts/MultichainToken"
 
 type FundData = {
     id: number;
@@ -79,22 +81,16 @@ export default function FundManager({ account, provider, signer} : { account: st
     const [tokenB, setTokenB] = useState("WBTC");
     const [tokenBBalance, setTokenBBalance] = useState(0);
 
+    const [whaleTokenBalance, setWhaleTokenBalance] = useState(0);
+    const [amountBridge, setAmountBridge] = useState(0);
+
     
 
     const [amountSwap, setAmountSwap] = useState(0);
     const [msgSwap, setMsgSwap] = useState("Approve");
 
-    const chainsMock = {
-        "Polkadot": "Polkadot",
-        "Acala": "Acala",
-        "Moonbeam": "Moonbeam",
-        "Kusama": "Kusama",
-    } as {
-        [key: string]: string;
-    }
-
-    const [chainA, setchainA] = useState("Polkadot");
-    const [chainB, setchainB] = useState("Acala");
+    const [chainA, setchainA] = useState("Whale Chain Testnet");
+    const [chainB, setchainB] = useState("Mandala Testnet");
 
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -133,6 +129,30 @@ export default function FundManager({ account, provider, signer} : { account: st
             })
         }
     }
+
+    async function getWhaleTokenBalance(){
+        try{
+            if(account == "" || !ethers.utils.isAddress(account as string)){
+                return;
+            }
+            const whaleTokenContract = new ethers.Contract(WhaleTokenAddress,MultiChainTokenAbi, signer);
+            const balanceToken = await whaleTokenContract.functions.balanceOf(account);
+            
+            setWhaleTokenBalance(Number(ethers.utils.formatEther(balanceToken[0]._hex)));
+            
+
+        } catch(err){
+            toast({
+                title: "Error getting Whale Balance",
+                description: "Connect to Metamask"
+            })
+            console.log(err)
+        } 
+    }
+
+    useEffect(() => {
+        getWhaleTokenBalance();
+    }, [signer]);
 
     useEffect(() =>{
         getTokenABalance();
@@ -395,7 +415,7 @@ export default function FundManager({ account, provider, signer} : { account: st
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Bridge</CardTitle>
+                                <CardTitle>Bridge WHALE tokens</CardTitle>
                                 <CardDescription>You can choose the chains and the amount to perform the bridge</CardDescription>
                             </CardHeader>
                             <CardContent className="my-6 space-y-4 flex justify-center">
@@ -413,7 +433,7 @@ export default function FundManager({ account, provider, signer} : { account: st
                                                 <SelectContent>
                                                     <SelectGroup>
                                                     <SelectLabel>Tokens</SelectLabel>
-                                                    {Object.keys(chainsMock).map((key) => { 
+                                                    {Object.keys(networks).map((key) => { 
                                                         return (
                                                             <SelectItem
                                                                 key={key}
@@ -440,7 +460,7 @@ export default function FundManager({ account, provider, signer} : { account: st
                                                 <SelectContent>
                                                     <SelectGroup>
                                                     <SelectLabel>Tokens</SelectLabel>
-                                                    {Object.keys(chainsMock).map((key) => { 
+                                                    {Object.keys(networks).map((key) => { 
                                                         return (
                                                             <SelectItem
                                                                 key={key}
@@ -459,15 +479,17 @@ export default function FundManager({ account, provider, signer} : { account: st
                                         <Label className="text-sm ml-2">Amount</Label>
                                         <div className="flex flex-row space-x-1">
                                             <Input 
-                                                id="invest" 
+                                                id="bridgeAmount" 
                                                 type="number" 
                                                 placeholder="ex. 129"
+                                                value={amountBridge}
+                                                onChange={(e) => setAmountBridge(parseFloat(e.target.value))}
                                             />
                                             <TooltipProvider>
                                                 <Tooltip>
                                                     <TooltipTrigger>
                                                         <Button 
-                                                        
+                                                        onClick={() => setAmountBridge(whaleTokenBalance)}
                                                         className="underline text-primary px-2" variant="outline">Max</Button>
                                                     </TooltipTrigger>
                                                     <TooltipContent>
@@ -483,13 +505,13 @@ export default function FundManager({ account, provider, signer} : { account: st
 
                                         <Label className="flex flex-row w-[150px] text-sm indent-3">
                                             Balance:
-                                            <p className="text-md font-bold">{Number(tokenBBalance).toFixed(3)}</p>
+                                            <p className="text-md font-bold">{Number(whaleTokenBalance).toFixed(3)}</p>
                                         </Label>
                                     </div>
                                     <div className="flex-1 flex flex-col items-start space-y-1 bg-primarylighter rounded px-4 py-2">
                                         <Label className="text-sm">Destination Account:</Label>
                                         <div className="flex flex-col items-center justify-center text-sm">
-                                            <p>x8941234KJASNDU9AS0DGH978ASDG7A8S9UDGASIU</p>
+                                            <p>{account}</p>
                                         </div>
                                     </div>
                                     <AlertDialog>
@@ -500,7 +522,7 @@ export default function FundManager({ account, provider, signer} : { account: st
                                                 Please wait
                                             </Button>
                                             :
-                                            <Button className="w-[200px] font-bold self-center rounded">Bridge</Button>
+                                            <Button className="w-[200px] font-bold self-center rounded">Bridge</Button> // button
                                             }
                                         </AlertDialogTrigger>
                                         <AlertDialogContent>

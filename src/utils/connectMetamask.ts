@@ -1,12 +1,28 @@
+import { ChainContext } from "@/contexts/ChainContext";
 import { ethers } from "ethers";
+import { useContext } from "react";
+import { networks } from "./chains";
+import { toast } from "@/components/ui/use-toast";
 
-export async function connectMetamask(){
+export async function connectMetamask(setChain?: (chain: number) => void){
     if(!window.ethereum){
         alert("Voce precisa da Metamask!");
     } else{
         try{
-
-            const web3Provider = new ethers.providers.Web3Provider(window.ethereum)
+            
+            const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+            web3Provider.getNetwork().then((network) => {
+              setChain? setChain(network.chainId) : (() => {})();
+              if(!(network.chainId in networks)){
+                toast({
+                  title: "Network not supported",
+                  description: "Please switch to WhaleChain Testnet",
+                })
+              }
+            }).catch((err) => {
+              console.log(err);
+              
+            });
             
             const accounts = await web3Provider.send('eth_requestAccounts' ,[]);
             const address = accounts[0];
@@ -25,12 +41,25 @@ export async function connectMetamask(){
     }
 }
 
-export function getMetamaskProvider(){
+export function getMetamaskProvider(setChain?: (chain: number) => void){
     if(!window.ethereum){
         alert("Você precisa da Metamask!");
     } else{
         try{
+
             const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+            web3Provider.getNetwork().then((network) => {
+              setChain? setChain(network.chainId) : (() => {})();
+
+              if(!(network.chainId in networks)){
+                toast({
+                  title: "Network not supported",
+                  description: "Please switch to WhaleChain Testnet",
+                })
+              }
+            }).catch((err) => {
+              console.log(err)
+            });
             return web3Provider;
 
         } catch(err){
@@ -39,13 +68,14 @@ export function getMetamaskProvider(){
     }
 }
 
-export async function switchNetwork(chainId: number) {
+export async function switchNetwork(chainId: number, setChain?: (chain: number) => void) {
     if (typeof window !== 'undefined' && window.ethereum) {
       try {
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
           params: [{ chainId: ethers.utils.hexValue(chainId) }],
         });
+        setChain ? setChain(chainId) : (() => {})();
       } catch (switchError: any) {
         if (switchError.code === 4902) {
           try {
@@ -56,6 +86,8 @@ export async function switchNetwork(chainId: number) {
                 // Add other network details here
               }],
             });
+
+            setChain ? setChain(chainId) : (() => {})();
           } catch (addError: any) {
             console.error(addError);
           }

@@ -34,6 +34,7 @@ import blockies from 'ethereum-blockies-base64';
 import { useEffect, useState } from "react";
 import AvatarDefault from "../assets/whale_avatar1.png"
 import { switchNetwork } from "../utils/connectMetamask";
+import { networks } from "@/utils/chains";
 
 export function Header({ isMetamaskInstalled, connectWallet, account, signer }: 
     { isMetamaskInstalled: boolean; connectWallet: any; account: string | null; signer: any;}) {
@@ -45,15 +46,7 @@ export function Header({ isMetamaskInstalled, connectWallet, account, signer }:
     const [selectedNetwork, setSelectedNetwork] = useState('');
     const [networkIcons, setNetworkIcons] = useState<{ [key: string]: string }>({});
 
-    const networks: { [key: string]: number } = {
-        'Ethereum': 1,
-        'Polygon': 137,
-        'BNB Chain': 56,
-        // 'Arbitrum': 42161,
-        // 'Optimism': 10,
-        // 'Avalanche': 43114,
-        // 'Celo': 42220,
-    };
+    
 
     const handleNetworkChange = async (networkName: string) => {
         const chainId = networks[networkName];

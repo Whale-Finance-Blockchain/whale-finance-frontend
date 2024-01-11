@@ -336,7 +336,15 @@ export default function FundInvestor({ account, provider, signer }: { account: s
                                         </div>
                                     </div>
                                 </div>
-                                <AlertDialog>
+                                {loading ?
+                                <Button disabled>
+                                    <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                                    Please wait
+                                </Button>
+                                :
+                                <Button onClick={makeInvestment}>{investMsg}</Button>
+                                }
+                                {/* <AlertDialog>
                                     <AlertDialogTrigger asChild>
                                         {loading ?
                                         <Button disabled>
@@ -351,8 +359,7 @@ export default function FundInvestor({ account, provider, signer }: { account: s
                                         <AlertDialogHeader>
                                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                            This action cannot be undone. This will permanently delete your account
-                                            and remove your data from our servers.
+                                            This action cannot be undone.
                                         </AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
@@ -362,7 +369,7 @@ export default function FundInvestor({ account, provider, signer }: { account: s
                                         </AlertDialogAction>
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
-                                </AlertDialog>
+                                </AlertDialog> */}
                             </CardContent>
                         </Card>
                         <div className="grid grid-cols-1 gap-4 justify-center my-6 md:grid-cols-5 lg:grid-cols-5">

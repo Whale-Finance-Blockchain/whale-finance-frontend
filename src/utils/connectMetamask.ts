@@ -10,7 +10,7 @@ export async function connectMetamask(setChain?: (chain: number) => void){
     } else{
         try{
             
-            const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+            const web3Provider = new ethers.providers.Web3Provider(window.ethereum, "any");
             web3Provider.getNetwork().then((network) => {
               setChain? setChain(network.chainId) : (() => {})();
               if(!(network.chainId in networks)){
@@ -47,7 +47,7 @@ export function getMetamaskProvider(setChain?: (chain: number) => void){
     } else{
         try{
 
-            const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+            const web3Provider = new ethers.providers.Web3Provider(window.ethereum, "any");
             web3Provider.getNetwork().then((network) => {
               setChain? setChain(network.chainId) : (() => {})();
 

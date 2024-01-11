@@ -42,12 +42,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 // import axios from 'axios';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Label } from "@radix-ui/react-label";
 import { ReloadIcon } from "@radix-ui/react-icons"
 import FundHeroSection from "@/components/FundHeroSection";
-import { SwapRouter, WhaleFinanceAddress, WhaleTokenAddress, allowedTokens } from "../utils/addresses";
+import { SwapRouter, WhaleFinanceAddress, WhaleTokenAddress, WhaleTokenAddressMandala, WhaleTokenAddressWhaleChain, allowedTokens } from "../utils/addresses";
 import { QuotaTokenAbi } from "../contracts/QuotaToken";
 import { WhaleFinanceAbi } from "../contracts/WhaleFinance";
 import { SafeAccountAbi } from "../contracts/SafeAccount";
@@ -56,6 +56,8 @@ import { ArrowDownUp, ArrowRightLeft } from 'lucide-react';
 import { ethers } from "ethers"
 import { networks } from "@/utils/chains"
 import { MultiChainTokenAbi } from "@/contracts/MultichainToken"
+import { ChainContext } from "@/contexts/ChainContext"
+import { switchNetwork } from "@/utils/connectMetamask"
 
 type FundData = {
     id: number;
@@ -67,6 +69,8 @@ type FundData = {
 export default function FundManager({ account, provider, signer} : { account: string | null; provider: any; signer: any;}) {
 
     const navigator = useNavigate();
+
+    const context = useContext(ChainContext) as { chain: number; setChain: any; };
 
     const params = useParams();
     const fundId = params.id || '';
@@ -84,10 +88,13 @@ export default function FundManager({ account, provider, signer} : { account: st
     const [whaleTokenBalance, setWhaleTokenBalance] = useState(0);
     const [amountBridge, setAmountBridge] = useState(0);
 
+    const [fundManager, setFundManager] = useState("0x0");
+
     
 
     const [amountSwap, setAmountSwap] = useState(0);
     const [msgSwap, setMsgSwap] = useState("Approve");
+    const [msgBridge, setMsgBridge] = useState("Bridge")
 
     const [chainA, setchainA] = useState("Whale Chain Testnet");
     const [chainB, setchainB] = useState("Mandala Testnet");
@@ -99,7 +106,7 @@ export default function FundManager({ account, provider, signer} : { account: st
             const tokenAAddress = allowedTokens[tokenA];
             const tokenAContract = new ethers.Contract(tokenAAddress, QuotaTokenAbi, signer);
             const tokenABalance = await tokenAContract.functions.balanceOf(account);
-            console.log(tokenABalance)
+            
             setTokenABalance(Number(ethers.utils.formatEther(tokenABalance[0]._hex)));
 
             
@@ -117,7 +124,7 @@ export default function FundManager({ account, provider, signer} : { account: st
             const tokenAAddress = allowedTokens[tokenB];
             const tokenAContract = new ethers.Contract(tokenAAddress, QuotaTokenAbi, signer);
             const tokenABalance = await tokenAContract.functions.balanceOf(account);
-            console.log(tokenABalance)
+            
             setTokenBBalance(Number(ethers.utils.formatEther(tokenABalance[0]._hex)));
 
             
@@ -135,8 +142,22 @@ export default function FundManager({ account, provider, signer} : { account: st
             if(account == "" || !ethers.utils.isAddress(account as string)){
                 return;
             }
-            const whaleTokenContract = new ethers.Contract(WhaleTokenAddress,MultiChainTokenAbi, signer);
+            let tokenAddress = WhaleTokenAddress;
+                if(context.chain == 253253){
+                tokenAddress = WhaleTokenAddressWhaleChain
+            } else if(context.chain == 595){
+                tokenAddress = WhaleTokenAddressMandala
+            }
+
+            console.log("address", tokenAddress)
+
+            console.log("chain", context.chain)
+            const whaleTokenContract = new ethers.Contract(tokenAddress,MultiChainTokenAbi, provider);
+            console.log("whaleTokenContract", whaleTokenContract)
+            console.log("account", account);
             const balanceToken = await whaleTokenContract.functions.balanceOf(account);
+
+            console.log("balanceToken", balanceToken)
             
             setWhaleTokenBalance(Number(ethers.utils.formatEther(balanceToken[0]._hex)));
             
@@ -149,6 +170,30 @@ export default function FundManager({ account, provider, signer} : { account: st
             console.log(err)
         } 
     }
+
+    async function getFundManager(){
+        try{
+            if(account == "" || !ethers.utils.isAddress(account as string)){
+                return;
+            }
+            const whaleFinanceContract = new ethers.Contract(WhaleFinanceAddress,WhaleFinanceAbi, signer);
+            const managerAccount = await whaleFinanceContract.functions.ownerOf(fundId);
+            
+            setFundManager(managerAccount[0]);
+            
+
+        } catch(err){
+            toast({
+                title: "Error getting Whale Balance",
+                description: "Connect to Metamask"
+            })
+            console.log(err)
+        }
+    }
+
+    useEffect(() => {
+        getFundManager();
+    }, [signer]);
 
     useEffect(() => {
         getWhaleTokenBalance();
@@ -253,14 +298,69 @@ export default function FundManager({ account, provider, signer} : { account: st
             })
             return;
         }
+        if(msgBridge == "Bridge"){
+            try{
+                setLoading(true);
+                if(account == "" || !ethers.utils.isAddress(account as string)){
+                    return;
+                }
+                
+                let tokenAddress = WhaleTokenAddressWhaleChain;
+                if(context.chain == 253253){
+                    tokenAddress = WhaleTokenAddressWhaleChain
+                } else if(context.chain == 595){
+                    tokenAddress = WhaleTokenAddressMandala
+                }
+                const whaleTokenContract = new ethers.Contract(tokenAddress,MultiChainTokenAbi, signer);
 
-        try{
-            console.log(chainA, chainB);
+                const txBurn = await whaleTokenContract.functions.debitFromChain(context.chain, ethers.utils.parseEther(String(amountBridge)));
+                await txBurn.wait();
 
-        } catch(err){
-            console.log(err);
-        } finally{
-            // setLoading(false);
+                await getWhaleTokenBalance();
+                setMsgBridge("Change Chain");
+
+
+            } catch(err){
+                console.log(err);
+            } finally{
+                setLoading(false);
+            }
+        } else if (msgBridge == "Change Chain"){
+            try{
+                setLoading(true);
+
+                const chainId = networks[chainB];
+                await switchNetwork(chainId);
+                
+                setMsgBridge("Redeem Tokens");
+            } catch(err){
+                console.log(err);
+            } finally{
+                setLoading(false);
+            }
+        } else if(msgBridge == "Redeem Tokens"){
+            try{
+                setLoading(true);
+                let tokenAddress = "";
+                if(chainB == "Whale Chain Testnet"){
+                    tokenAddress = WhaleTokenAddressWhaleChain
+                } else if(chainB == "Mandala Testnet"){
+                    tokenAddress = WhaleTokenAddressMandala
+                }
+                const whaleTokenContract = new ethers.Contract(tokenAddress,MultiChainTokenAbi, signer);
+
+                const txMint = await whaleTokenContract.functions.credit(context.chain, account, ethers.utils.parseEther(String(amountBridge)));
+
+                await txMint.wait();
+
+                await getWhaleTokenBalance();
+
+                setMsgBridge("Bridge");
+            } catch(err){
+                console.log(err);
+            } finally{
+                setLoading(false);
+            }
         }
     }
 
@@ -522,7 +622,7 @@ export default function FundManager({ account, provider, signer} : { account: st
                                                 Please wait
                                             </Button>
                                             :
-                                            <Button className="w-[200px] font-bold self-center rounded">Bridge</Button> // button
+                                            <Button className="w-[200px] font-bold self-center rounded">{msgBridge}</Button> // button
                                             }
                                         </AlertDialogTrigger>
                                         <AlertDialogContent>
@@ -535,7 +635,7 @@ export default function FundManager({ account, provider, signer} : { account: st
                                             <AlertDialogFooter>
                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                                             <AlertDialogAction>
-                                                <p onClick={makeBridge}>Bridge</p>
+                                                <p onClick={makeBridge}>{msgBridge}</p>
                                             </AlertDialogAction>
                                             </AlertDialogFooter>
                                         </AlertDialogContent>

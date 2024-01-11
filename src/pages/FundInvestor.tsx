@@ -89,8 +89,9 @@ export default function FundInvestor({ account, provider, signer }: { account: s
     const [invest, setInvest] = useState(0);
     const [whaleTokenBalance, setWhaleTokenBalance] = useState(0);
     const [fundName, setFundName] = useState("Fund");
+    const [fundManager, setFundManager] = useState("0x0");
 
-    const [investMsg, setInvestMsg] = useState("Approve WHALE");
+    const [investMsg, setInvestMsg] = useState("Invest");
 
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -113,6 +114,30 @@ export default function FundInvestor({ account, provider, signer }: { account: s
             console.log(err)
         } 
     }
+
+    async function getFundManager(){
+        try{
+            if(account == "" || !ethers.utils.isAddress(account as string)){
+                return;
+            }
+            const whaleFinanceContract = new ethers.Contract(WhaleFinanceAddress,WhaleFinanceAbi, signer);
+            const managerAccount = await whaleFinanceContract.functions.ownerOf(fundId);
+            
+            setFundManager(managerAccount[0]);
+            
+
+        } catch(err){
+            toast({
+                title: "Error getting Whale Balance",
+                description: "Connect to Metamask"
+            })
+            console.log(err)
+        }
+    }
+
+    useEffect(() => {
+        getFundManager();
+    }, [signer]);
 
     useEffect(() => {
         getWhaleTokenBalance();
@@ -279,7 +304,7 @@ export default function FundInvestor({ account, provider, signer }: { account: s
 
     return (
         <div className='w-[100vw] h-[100vh] overflow-y-auto'>
-            <FundHeroSection name={fundName} description={"Description"}  color="primary"/>
+            <FundHeroSection name={fundName} description={"Description"}  color="primary" manager={fundManager}/>
             <div className="px-12 pb-12">
                 <Tabs defaultValue="invest" className="w-full">
                     <TabsList className="mb-8 grid-cols-2">

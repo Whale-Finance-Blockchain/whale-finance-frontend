@@ -23,9 +23,10 @@ type HeroSectionProps = {
     name?: string;
     description?: string;
     color?: string;
+    manager?: string;
 };
 
-const FundHeroSection: React.FC<HeroSectionProps> = ({ name, description, color }) => {
+const FundHeroSection: React.FC<HeroSectionProps> = ({ name, description, color, manager }) => {
 
     const managerAddress = '0x0';
 
@@ -67,7 +68,7 @@ const FundHeroSection: React.FC<HeroSectionProps> = ({ name, description, color 
                 <p className='flex flex-col justify-center mx-8 italic'>Managed by:</p>
                 <div className='px-4 py-2 rounded bg-secondary opacity-90 flex items-center space-x-4'>
                     <img src={avatar} alt="" className="w-[25px] h-auto rounded-full"/>
-                    <p>{managerAddress}</p>
+                    <p>{manager}</p>
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger>

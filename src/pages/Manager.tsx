@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import '../components/truncate.css';
 import { Separator } from "@/components/ui/separator";
 import { AiOutlineArrowUp, AiOutlineArrowDown } from "react-icons/ai";
-import { getMetamaskProvider } from '../utils/connectMetamask';
+// import { getMetamaskProvider } from '../utils/connectMetamask';
 import { ethers } from 'ethers';
 import { WhaleFinanceAbi } from '../contracts/WhaleFinance';
 import { WhaleFinanceAddress } from '../utils/addresses';
@@ -21,7 +21,7 @@ type FundData = {
 
 export default function ManagerArea({ account, provider, signer }: { account: string | null; provider: any; signer: any;}) {
 
-    const [manager, setManager] = useState<number>(0);
+    // const [manager, setManager] = useState<number>(0);
 
     const [funds, setFunds] = useState<FundData[]>([]);
 
@@ -54,9 +54,9 @@ export default function ManagerArea({ account, provider, signer }: { account: st
             }
             }));
 
-            if(fundsList.length > 0){
-            setManager(1);
-            }
+            // if(fundsList.length > 0){
+            // setManager(1);
+            // }
 
             setFunds([...fundsList]);
 

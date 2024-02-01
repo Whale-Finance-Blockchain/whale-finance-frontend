@@ -91,6 +91,7 @@ export function Header({ isMetamaskInstalled, connectWallet, account, signer }:
                 <NavButton to="/funds-list">Funds List</NavButton>
                 <NavButton to="/create-fund">Create Fund</NavButton>
                 <NavButton to="/manager">Manager Area</NavButton>
+                <NavButton to="/claim">Claim Tokens (testnet)</NavButton>
                 <div className="w-full flex flex-row justify-center mt-[30vh] my-6">
                     <Avatar>
                         <AvatarImage src={avatar} alt="@user" />

@@ -11,6 +11,7 @@ import FundInvestor from "./pages/FundInvestor"
 import FundManager from "./pages/FundManager"
 import SuccessPage from "./pages/Success"
 import { ChainContext } from "./contexts/ChainContext"
+import Claim from "./pages/Claim"
 
 export default function App() {
 
@@ -68,6 +69,7 @@ export default function App() {
                 signer={signer} 
               />} />
             <Route path="/success" element={<SuccessPage />} />
+            <Route path="/claim" element={<Claim />} />
             <Route path="/manager" element={
               <ManagerArea 
                 account={account}

@@ -64,7 +64,7 @@ When the fund is open to trades, the manager can interact with UniSwap to make p
 
 ![Project Photo](./src/assets/fund_creation.png)
 ![Project Photo](./src/assets/investment.png)
-![Project Photo](./src/assets/indirect_swap.png)
+![Project Photo](./src/assets/swap.png)
 
 - *Project Logo:* 
 
@@ -157,7 +157,7 @@ Benefits to decentralize the asset management industry and differences from the 
   
   - *Integration and Potential:* The whale.finance is integrated with *Unis Swap*, and can be integrated in the future with other products, like Aave. Besides that, there is a lot of potential to explore 
 
-![Project Photo](./src/assets/descentralized_am_new.png)
+![Project Photo](./src/assets/decentralized_am_new.png)
 
 _
 

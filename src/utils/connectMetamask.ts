@@ -1,6 +1,4 @@
-import { ChainContext } from "@/contexts/ChainContext";
 import { ethers } from "ethers";
-import { useContext } from "react";
 import { networks } from "./chains";
 import { toast } from "@/components/ui/use-toast";
 

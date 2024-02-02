@@ -36,7 +36,7 @@ import { useParams } from "react-router-dom";
 import { Label } from "@radix-ui/react-label";
 import { ReloadIcon } from "@radix-ui/react-icons"
 import FundHeroSection from "@/components/FundHeroSection";
-import { WhaleFinanceAddress, WhaleTokenAddress } from '../utils/addresses';
+import { WhaleFinanceAddress, WhaleTokenAddress, allowedTokens, allowedtokensPrices } from '../utils/addresses';
 import { QuotaTokenAbi } from '../contracts/QuotaToken';
 import { WhaleFinanceAbi } from '../contracts/WhaleFinance';
 import { ethers } from "ethers"
@@ -46,7 +46,7 @@ import { getChartColors } from "@/utils/chartUtils"
 import { ChartTestComponent } from "@/components/ChartTest"
 import { Coins, TrendingUp, Wallet } from "lucide-react"
 import { FundData } from "@/utils/props"
-import { tokenAllocation, mockChart, hedgeFunds } from "@/utils/mock" 
+import { mockChart, hedgeFunds } from "@/utils/mock" 
 
 export default function FundInvestor({ account, provider, signer }: { account: string | null; provider: any; signer: any;}) {
 
@@ -55,11 +55,20 @@ export default function FundInvestor({ account, provider, signer }: { account: s
 
     // const navigator = useNavigate();
 
+    //@ts-ignore
     const [fund, setFund] = useState<FundData | null>(null);
     const [invest, setInvest] = useState(0);
     const [whaleTokenBalance, setWhaleTokenBalance] = useState(0);
     const [fundName, setFundName] = useState("Fund");
     const [fundManager, setFundManager] = useState("0x0");
+
+    //@ts-ignore
+    const [fundAddress, setFundAddress] = useState("0x0");
+    const [tokensHolding, setTokensHolding] = useState({} as any);
+    //@ts-ignore
+    const [fundQuota, setFundQuota] = useState("0x0");
+    const [quotaBalance, setQuotaBalance] = useState(0);
+    const [totalQuota, setTotalQuota] = useState(0);
 
     const [investMsg, setInvestMsg] = useState("Invest");
 
@@ -85,6 +94,38 @@ export default function FundInvestor({ account, provider, signer }: { account: s
         } 
     }
 
+    async function getTokensHolding(accountAddress: string){
+        try{
+            if(account == "" || !ethers.utils.isAddress(account as string)){
+                return;
+            }
+
+            const allocations: any = {}
+            const whaleTokenContract = new ethers.Contract(WhaleTokenAddress, QuotaTokenAbi, signer);
+            const whaleTokenBalance = await whaleTokenContract.functions.balanceOf(accountAddress);
+
+            allocations["WHALE"] = Number(ethers.utils.formatEther(whaleTokenBalance[0]._hex));
+
+            await Promise.all(
+                Object.keys(allowedTokens).map(async (token: string) => {
+                    const tokenContract = new ethers.Contract(allowedTokens[token], MultiChainTokenAbi, signer);
+                    const balance = await tokenContract.functions.balanceOf(accountAddress);
+                    allocations[token] = Number(ethers.utils.formatEther(balance[0]._hex));
+                })
+            );
+
+            console.log(allocations);
+
+            setTokensHolding({...allocations});
+            console.log(tokensHolding)
+            
+
+        } catch(err){
+            
+            console.log(err)
+        }
+    }
+
     async function getFundManager(){
         try{
             if(account == "" || !ethers.utils.isAddress(account as string)){
@@ -104,6 +145,91 @@ export default function FundInvestor({ account, provider, signer }: { account: s
             console.log(err)
         }
     }
+
+    async function getFundAddress(){
+        try{
+            if(account == "" || !ethers.utils.isAddress(account as string)){
+                return;
+            }
+            const whaleFinanceContract = new ethers.Contract(WhaleFinanceAddress,WhaleFinanceAbi, signer);
+            
+            const fundAccount = await whaleFinanceContract.functions.fundsAddresses(fundId);
+
+            console.log(fundAccount);
+            
+            setFundAddress(fundAccount[0]);
+
+            
+            await getTokensHolding(fundAccount[0]);
+
+        } catch(err){
+            toast({
+                title: "Error getting Fund Addrses",
+                description: "Connect to Metamask"
+            })
+            console.log(err)
+        }
+    }
+
+    async function getQuotaBalance(quotaAddress: string){
+        try{
+            if(account == "" || !ethers.utils.isAddress(account as string)){
+                return;
+            }
+            const quotaTokenContract = new ethers.Contract(quotaAddress,QuotaTokenAbi, signer);
+            
+            const quotaBalance = await quotaTokenContract.functions.balanceOf(account);
+            const totalSupply = await quotaTokenContract.functions.totalSupply();
+
+            console.log("balance", quotaBalance)
+
+            console.log(quotaBalance);
+            
+            setQuotaBalance(Number(ethers.utils.formatEther(quotaBalance[0]._hex)));
+            setTotalQuota(Number(ethers.utils.formatEther(totalSupply[0]._hex)));
+
+        } catch(err){
+            toast({
+                title: "Error getting Fund Addrses",
+                description: "Connect to Metamask"
+            })
+            console.log(err)
+        }
+    }
+
+    async function getFundQuota(){
+        try{
+            if(account == "" || !ethers.utils.isAddress(account as string)){
+                return;
+            }
+            const whaleFinanceContract = new ethers.Contract(WhaleFinanceAddress,WhaleFinanceAbi, signer);
+            
+            const quotaAddress = await whaleFinanceContract.functions.quotasAddresses(fundId);
+            
+            setFundQuota(quotaAddress[0]);
+
+            console.log("quota", quotaAddress[0]);
+            
+
+            
+            await getQuotaBalance(quotaAddress[0]);
+
+        } catch(err){
+            toast({
+                title: "Error getting Fund Addrses",
+                description: "Connect to Metamask"
+            })
+            console.log(err)
+        }
+    }
+
+    useEffect(() => {
+        getFundAddress();
+    },[signer])
+
+    useEffect(() => {
+        getFundQuota();
+    },[signer])
 
     useEffect(() => {
         getFundManager();
@@ -134,10 +260,9 @@ export default function FundInvestor({ account, provider, signer }: { account: s
             console.log(txApprove)
             await txApprove.wait();
 
-            setLoading(false);
+            console
 
-            setInvestMsg("Invest");
-            setLoading(true);
+            
             console.log(fundId)
             const txInvest = await whaleFinanceContract.functions.invest(ethers.utils.parseEther(String(invest)), fundId);
             console.log(fundId)
@@ -153,6 +278,7 @@ export default function FundInvestor({ account, provider, signer }: { account: s
 
         }catch(err){
             console.log(err);
+            console.log("ERRRR")
         } finally{
             setLoading(false);
             setInvest(0);
@@ -212,6 +338,21 @@ export default function FundInvestor({ account, provider, signer }: { account: s
             setChartColors(getChartColors());
         }, 1); // Adjust delay
     }, [theme]);
+
+    function getAum(quantities: {[key: string]: number}, prices: {[key: string]: number}){
+        console.log("quantity", quantities);
+        console.log("prices", prices);
+        let aum = 0;
+        Object.keys(quantities).forEach((token: string) => {
+            console.log("token", token);
+            const newValue = Number(quantities[token]) * Number((prices[token]));
+            console.log("newValue", newValue);
+
+            aum += newValue;
+        })
+        return aum;
+
+    }
 
     return (
         <div className='w-[100vw] h-[100vh] overflow-y-auto'>
@@ -315,7 +456,7 @@ export default function FundInvestor({ account, provider, signer }: { account: s
                                 </CardHeader>
                                 <CardContent className="text-xl flex flex-row space-x-2">
                                     <Wallet />
-                                    <p>{formatToUSD(10)}</p>
+                                    <p>{formatToUSD(totalQuota/getAum(tokensHolding, allowedtokensPrices))}</p>
                                 </CardContent>
                             </Card>
                             <Card>
@@ -324,7 +465,7 @@ export default function FundInvestor({ account, provider, signer }: { account: s
                                 </CardHeader>
                                 <CardContent className="text-xl flex flex-row space-x-2">
                                     <Coins />
-                                    <p>{formatToUSD(100000000)}</p>
+                                    <p>{formatToUSD(getAum(tokensHolding, allowedtokensPrices))}</p>
                                 </CardContent>
                             </Card>
                             <Card>
@@ -342,7 +483,7 @@ export default function FundInvestor({ account, provider, signer }: { account: s
                                 </CardHeader>
                                 <CardContent className="text-xl flex flex-row space-x-2">
                                     <Coins />
-                                    <p>{formatToUSD(0)}</p>
+                                    <p>{Number(quotaBalance).toFixed(3)}</p>
                                 </CardContent>
                             </Card>
                             <Card className="border-[1px] border-primary">
@@ -383,24 +524,24 @@ export default function FundInvestor({ account, provider, signer }: { account: s
                                     <TableHeader>
                                         <TableRow>
                                         <TableHead className="">Asset</TableHead>
-                                        <TableHead className="text-right">Allocation</TableHead>
+                                        
                                         <TableHead className="text-right">Price</TableHead>
                                         <TableHead className="text-right">Amount</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {tokenAllocation.map((token) => (
-                                        <TableRow key={token.token}>
-                                            <TableCell className="">{token.token}</TableCell>
-                                            <TableCell className="text-right">{token.weight}</TableCell>
-                                            <TableCell className="text-right">{token.price}</TableCell>
-                                            <TableCell className="text-right">{token.totalAmount}</TableCell>
+                                        {Object.keys(tokensHolding).map((token: string) => (
+                                        <TableRow key={token}>
+                                            <TableCell className="">{token}</TableCell>
+                                            
+                                            <TableCell className="text-right">{allowedtokensPrices[token]}</TableCell>
+                                            <TableCell className="text-right">{tokensHolding[token]}</TableCell>
                                         </TableRow>
                                         ))}
                                     </TableBody>
                                     <TableFooter>
                                         <TableRow>
-                                        <TableCell colSpan={4} className="text-right">$1,200,000.00</TableCell>
+                                        <TableCell colSpan={4} className="text-right">${getAum(tokensHolding, allowedtokensPrices)}</TableCell>
                                         </TableRow>
                                     </TableFooter>
                                 </Table>

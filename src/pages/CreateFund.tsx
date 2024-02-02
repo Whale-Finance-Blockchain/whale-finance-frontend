@@ -77,7 +77,7 @@ export default function CreateFund({ account, signer }: { account: string | null
     function handleDateTimestamp(date: Date | undefined) {
         const safeDate = date || new Date();
         const timestamp = safeDate.getTime().toString();
-        return timestamp;
+        return Number(timestamp);
     }
 
     const handleCheckboxChange = (tokenName: string, checked: boolean) => {
@@ -112,7 +112,7 @@ export default function CreateFund({ account, signer }: { account: string | null
         }
         setLoading(true);
 
-        const openInvestmentTimestamp = handleDateTimestamp(openInvestment);
+        const openInvestmentTimestamp = handleDateTimestamp(openInvestment)/1000;
         const closeInvestmentTimestamp = handleDateTimestamp(closeInvestment);
         const maturationTimeTimestamp = handleDateTimestamp(maturationTime);
 
@@ -121,6 +121,8 @@ export default function CreateFund({ account, signer }: { account: string | null
 
         try{
             const whaleFinanceContract = new ethers.Contract(WhaleFinanceAddress, WhaleFinanceAbi, signer);
+            console.log(openInvestmentTimestamp);
+            
             const txNewFund = await whaleFinanceContract.createFund(
                 name,
                 ticker, 

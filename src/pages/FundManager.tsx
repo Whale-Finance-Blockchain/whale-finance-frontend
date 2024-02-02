@@ -46,7 +46,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Label } from "@radix-ui/react-label";
 import { ReloadIcon } from "@radix-ui/react-icons"
 import FundHeroSection from "@/components/FundHeroSection";
-import { SwapRouter, WhaleFinanceAddress, WhaleTokenAddress, WhaleTokenAddressMandala, WhaleTokenAddressWhaleChain, allowedTokens } from "../utils/addresses";
+import { SwapRouter, WhaleFinanceAddress, WhaleTokenAddress, allowedTokens } from "../utils/addresses";
 import { QuotaTokenAbi } from "../contracts/QuotaToken";
 import { WhaleFinanceAbi } from "../contracts/WhaleFinance";
 import { SafeAccountAbi } from "../contracts/SafeAccount";
@@ -75,10 +75,13 @@ export default function FundManager({ account, provider, signer} : { account: st
 
     const [fund, setFund] = useState<FundData | null>(null);
 
-    const [tokenA, setTokenA] = useState("DOT");
+    const [tokenA, setTokenA] = useState("WHALE");
     const [tokenABalance, setTokenABalance] = useState(0);
     const [tokenB, setTokenB] = useState("WBTC");
     const [tokenBBalance, setTokenBBalance] = useState(0);
+
+    //@ts-ignore
+    const [fundAddress, setFundAddress] = useState("0x0");
 
     const [fundName, setFundName] = useState("Fund");
 
@@ -87,10 +90,13 @@ export default function FundManager({ account, provider, signer} : { account: st
 
     const [fundManager, setFundManager] = useState("0x0");
 
+    const [tokensHolding, setTokensHolding] = useState({} as any);
+
     
 
     const [amountSwap, setAmountSwap] = useState(0);
-    const [msgSwap, setMsgSwap] = useState("Approve");
+    //@ts-ignore
+    const [msgSwap, setMsgSwap] = useState("Swap");
     const [msgBridge, setMsgBridge] = useState("Bridge")
 
     const [chainA, setchainA] = useState("Whale Chain Testnet");
@@ -98,11 +104,11 @@ export default function FundManager({ account, provider, signer} : { account: st
 
     const [loading, setLoading] = useState<boolean>(false);
 
-    async function getTokenABalance(){
+    async function getTokenABalance(fundAddress: string){
         try{
             const tokenAAddress = allowedTokens[tokenA];
             const tokenAContract = new ethers.Contract(tokenAAddress, QuotaTokenAbi, signer);
-            const tokenABalance = await tokenAContract.functions.balanceOf(account);
+            const tokenABalance = await tokenAContract.functions.balanceOf(fundAddress);
             
             setTokenABalance(Number(ethers.utils.formatEther(tokenABalance[0]._hex)));
 
@@ -116,11 +122,11 @@ export default function FundManager({ account, provider, signer} : { account: st
         }
     }
 
-    async function getTokenBBalance(){
+    async function getTokenBBalance(fundAddress: string){
         try{
             const tokenAAddress = allowedTokens[tokenB];
             const tokenAContract = new ethers.Contract(tokenAAddress, QuotaTokenAbi, signer);
-            const tokenABalance = await tokenAContract.functions.balanceOf(account);
+            const tokenABalance = await tokenAContract.functions.balanceOf(fundAddress);
             
             setTokenBBalance(Number(ethers.utils.formatEther(tokenABalance[0]._hex)));
 
@@ -140,11 +146,6 @@ export default function FundManager({ account, provider, signer} : { account: st
                 return;
             }
             let tokenAddress = WhaleTokenAddress;
-                if(context.chain == 253253){
-                tokenAddress = WhaleTokenAddressWhaleChain
-            } else if(context.chain == 595){
-                tokenAddress = WhaleTokenAddressMandala
-            }
 
             console.log("address", tokenAddress)
 
@@ -205,6 +206,68 @@ export default function FundManager({ account, provider, signer} : { account: st
             console.log(err)
         } 
     }
+    async function getTokensHolding(accountAddress: string){
+        try{
+            if(account == "" || !ethers.utils.isAddress(account as string)){
+                return;
+            }
+
+            const allocations: any = {}
+            const whaleTokenContract = new ethers.Contract(WhaleTokenAddress, QuotaTokenAbi, signer);
+            const whaleTokenBalance = await whaleTokenContract.functions.balanceOf(accountAddress);
+
+            allocations["WHALE"] = Number(ethers.utils.formatEther(whaleTokenBalance[0]._hex));
+
+            await Promise.all(
+                Object.keys(allowedTokens).map(async (token: string) => {
+                    const tokenContract = new ethers.Contract(allowedTokens[token], MultiChainTokenAbi, signer);
+                    const balance = await tokenContract.functions.balanceOf(accountAddress);
+                    allocations[token] = Number(ethers.utils.formatEther(balance[0]._hex));
+                })
+            );
+
+            console.log(allocations);
+
+            setTokensHolding({...allocations});
+            console.log(tokensHolding)
+            
+
+        } catch(err){
+            
+            console.log(err)
+        }
+    }
+    async function getFundAddress(){
+        try{
+            if(account == "" || !ethers.utils.isAddress(account as string)){
+                return;
+            }
+            const whaleFinanceContract = new ethers.Contract(WhaleFinanceAddress,WhaleFinanceAbi, signer);
+            
+            const fundAccount = await whaleFinanceContract.functions.fundsAddresses(fundId);
+
+            console.log(fundAccount);
+            
+            setFundAddress(fundAccount[0]);
+
+            await getTokenABalance(fundAccount[0]);
+            await getTokenBBalance(fundAccount[0]);
+
+            
+            await getTokensHolding(fundAccount[0]);
+
+        } catch(err){
+            toast({
+                title: "Error getting Fund Addrses",
+                description: "Connect to Metamask"
+            })
+            console.log(err)
+        }
+    }
+
+    useEffect(() => {
+        getFundAddress();
+    }, [signer]);
 
     useEffect(() => {
         getFundName();
@@ -218,13 +281,7 @@ export default function FundManager({ account, provider, signer} : { account: st
         getWhaleTokenBalance();
     }, [signer]);
 
-    useEffect(() =>{
-        getTokenABalance();
-    },[signer]);
 
-    useEffect(() => {
-        getTokenBBalance();
-    }, [signer])
 
     useEffect(() => {
         // Find the fund with the matching ID
@@ -258,6 +315,8 @@ export default function FundManager({ account, provider, signer} : { account: st
             const tokenAAddress = allowedTokens[tokenA];
             const tokenBAddress = allowedTokens[tokenB];
 
+            console.log("ASDAS")
+
             const whaleFinanceContract = new ethers.Contract(WhaleFinanceAddress, WhaleFinanceAbi, signer);
             
             setLoading(true);
@@ -270,7 +329,7 @@ export default function FundManager({ account, provider, signer} : { account: st
 
             // const routerContract = new ethers.Contract(SwapRouter, ["function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"], props.signer);
 
-            const deadline = Math.floor(Date.now() / 1000) + 3600;
+            const deadline = (Math.floor(Date.now() / 1000) + 3600)*100000000000000;
 
             const fundContract = new ethers.Contract(fundAddress[0], SafeAccountAbi, signer);
 
@@ -278,6 +337,13 @@ export default function FundManager({ account, provider, signer} : { account: st
             const txApprove = await fundContract.functions.executeApprove(tokenAAddress, SwapRouter, ethers.utils.parseEther(String(amountSwap)));
 
             await txApprove.wait();
+
+            const tokenAContract = new ethers.Contract(tokenAAddress, QuotaTokenAbi, signer);
+            const txApprove2 = await tokenAContract.functions.approve(SwapRouter, ethers.utils.parseEther(String(amountSwap)));
+
+            await txApprove2.wait();
+
+            console.log("Approve Worked")
 
 
             const txSwap = await fundContract.functions.executeSwapExactTokensForTokens(
@@ -311,12 +377,8 @@ export default function FundManager({ account, provider, signer} : { account: st
                     return;
                 }
                 
-                let tokenAddress = WhaleTokenAddressWhaleChain;
-                if(context.chain == 253253){
-                    tokenAddress = WhaleTokenAddressWhaleChain
-                } else if(context.chain == 595){
-                    tokenAddress = WhaleTokenAddressMandala
-                }
+                let tokenAddress = WhaleTokenAddress;
+               
                 const whaleTokenContract = new ethers.Contract(tokenAddress,MultiChainTokenAbi, signer);
 
                 const txBurn = await whaleTokenContract.functions.debitFromChain(context.chain, ethers.utils.parseEther(String(amountBridge)));
@@ -347,12 +409,8 @@ export default function FundManager({ account, provider, signer} : { account: st
         } else if(msgBridge == "Redeem Tokens"){
             try{
                 setLoading(true);
-                let tokenAddress = "";
-                if(chainB == "Whale Chain Testnet"){
-                    tokenAddress = WhaleTokenAddressWhaleChain
-                } else if(chainB == "Mandala Testnet"){
-                    tokenAddress = WhaleTokenAddressMandala
-                }
+                let tokenAddress = WhaleTokenAddress;
+                
                 const whaleTokenContract = new ethers.Contract(tokenAddress,MultiChainTokenAbi, signer);
 
                 const txMint = await whaleTokenContract.functions.credit(context.chain, account, ethers.utils.parseEther(String(amountBridge)));

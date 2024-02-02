@@ -14,6 +14,7 @@ import { toast } from '@/components/ui/use-toast';
 
 export default function Claim() {
 
+    //@ts-ignore
     const [claims, setClaims] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
 

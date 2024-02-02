@@ -22,11 +22,11 @@ _
 
   - First of all, it it's necessary, there is an attachment section below in this ReadMe file to explane more about financial market, specifically hedge funds. The essence of Whale Finance is basically safety first in transactions, highlighting its innovative approach to asset management.
 
-  - *Decentralized Management of Tokenized Assets:* Whale Finance is a protocol for the decentralized management of a variety of tokenized assets in the future, including native crypto assets and tokenized Real World Assets (RWA). The management of these assets is facilitated by integration with various asset issuance and trading protocols, such as Centrifuge, Kona Finance, Uniswap, Aave, OpenSea, Acala, and Bifrost.
+  - *Decentralized Management of Tokenized Assets:* Whale Finance is a protocol for the decentralized management of a variety of tokenized assets in the future, including native crypto assets and tokenized Real World Assets (RWA).
 
   - *Investment Mechanisms and Security:* The platform uses NFTs representing investment funds in a unique way (using ERC 6551), SafeAccounts for asset management, and quotaTokens linked to the NFT. The fund managers, who (in the future) must be approved using a decentralized identity protocol like KILT, manage the assets in a limited way, providing security for investors. The fund strategies are publicly recorded on the blockchain, and the quotaTokens allow for internal voting on important decisions, like the fund’s closing date.
 
-  - *Difficulty of Technology and Innovation:* The innovative way to perform swap priorizing safety is implemented using ERC 6551 (a very recent improvement protocol - May 2023) and extended for other chains using the appchain/multichain approach learned in the Polkadot philosophy and ecossystem, benefiting the transaction over various blockchains.
+  - *Difficulty of Technology and Innovation:* The innovative way to perform swap priorizing safety is implemented using ERC 6551 (a very recent improvement protocol - May 2023).
 
   - *Flexibility and Use Cases:* Whale Finance offers flexibility in the investment flow, allowing investments at various stages and using oracles for continuous fund pricing. Besides investment funds that resemble traditional funds, the platform can also be used for managing DAO treasuries, where decisions are made through votes by quotaToken holders.
 

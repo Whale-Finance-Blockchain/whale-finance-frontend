@@ -38,11 +38,11 @@ _
 
 - *Project Demo and Presentation:*
 
-[Demo Link](https://whale-finance-xrpl.vercel.app/)
+[Demo Link](https://whale-finance.netlify.app/)
 
 [Demo Video](https://youtu.be/DKN8tXYl858)
 
-[Presentation Link](https://www.canva.com/design/DAF6kaUmKfg/bASuzaVNbmwrKIxMYavbBg/edit?utm_content=DAF6kaUmKfg&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+[Presentation Link](https://www.canva.com/design/DAF7ofuzmyE/aJQfqObLAS5EFFbdfTIpLA/edit?utm_content=DAF7ofuzmyE&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
 - *Technical Architecture:*
 
@@ -62,9 +62,9 @@ This ERC allows an nft owner to have control over an account, but with customiza
 
 When the fund is open to trades, the manager can interact with UniSwap to make profits, using the assets available in the Safe Account. After maturation time, the investor can redeem their yields, with profits or loss.
 
-![Project Photo](./src/assets/fund_creation.jpg)
-![Project Photo](./src/assets/investment.jpg)
-![Project Photo](./src/assets/indirect_swap.jpg)
+![Project Photo](./src/assets/fund_creation.png)
+![Project Photo](./src/assets/investment.png)
+![Project Photo](./src/assets/indirect_swap.png)
 
 - *Project Logo:* 
 
@@ -133,7 +133,7 @@ Before that, to give some context, the stakeholders of the financial market expl
   
   - *Custodian & Fund:* Custodians play a pivotal role in safeguarding the assets of the fund, ensuring that they are held securely and are not susceptible to theft or loss. Apart from asset safekeeping, they also assist in transaction settlements and administrative services, thus ensuring smooth operational flow and compliance with regulatory requirements.
 
-![Project Photo](./src/assets/traditional_am.png)
+![Project Photo](./src/assets/traditional_am_new.png)
 
 _
 
@@ -157,7 +157,7 @@ Benefits to decentralize the asset management industry and differences from the 
   
   - *Integration and Potential:* The whale.finance is integrated with *Unis Swap*, and can be integrated in the future with other products, like Aave. Besides that, there is a lot of potential to explore 
 
-![Project Photo](./src/assets/descentralized_am.png)
+![Project Photo](./src/assets/descentralized_am_new.png)
 
 _
 

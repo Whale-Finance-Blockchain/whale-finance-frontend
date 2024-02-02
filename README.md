@@ -62,13 +62,13 @@ This ERC allows an nft owner to have control over an account, but with customiza
 
 When the fund is open to trades, the manager can interact with UniSwap to make profits, using the assets available in the Safe Account. After maturation time, the investor can redeem their yields, with profits or loss.
 
-![Project Photo](./frontend/src/assets/fund_creation.jpg)
-![Project Photo](./frontend/src/assets/investment.jpg)
-![Project Photo](./frontend/src/assets/indirect_swap.jpg)
+![Project Photo](./src/assets/fund_creation.jpg)
+![Project Photo](./src/assets/investment.jpg)
+![Project Photo](./src/assets/indirect_swap.jpg)
 
 - *Project Logo:* 
 
-![Project Photo](./frontend/src/assets/whale_logo_green.png)
+![Project Photo](./src/assets/whale_logo_green.png)
 
 _
 
@@ -85,12 +85,12 @@ _
 
   - *Client Side:*
     - *Web Investor Features:*
-      - [Funds List Page](./frontend/src/pages/FundsList/FundsList.tsx): Can choose a fund in a list of funds to make an investment (/fundslist route)
-      - [Invest Page](./frontend/src/pages/FundId/FundId.tsx): Can see stats about the fund chosen, like a performance chart, and then invest in the favorite ones (/funds/id route)
+      - [Funds List Page](./src/pages/FundsList/FundsList.tsx): Can choose a fund in a list of funds to make an investment (/fundslist route)
+      - [Invest Page](./src/pages/FundId/FundId.tsx): Can see stats about the fund chosen, like a performance chart, and then invest in the favorite ones (/funds/id route)
     - *Web Manager Features:*
-      - [Create Fund Page](./frontend/src/pages/CreateFund/CreateFund.tsx): Can create a fund based on the parameters listed below in the Fund section (/create-fund route)
-      - [Funds List Page](./frontend/src/pages/Manager/Manager.tsx): Can choose a fund in a list of funds to see stats about the managed fund (/manager route)
-      - [Dashboard Page](./frontend/src/pages/DashboardId/DashboardId.tsx): Can see stats about the fund chosen and then swap tokens to operate the fund (/manager/id route)
+      - [Create Fund Page](./src/pages/CreateFund/CreateFund.tsx): Can create a fund based on the parameters listed below in the Fund section (/create-fund route)
+      - [Funds List Page](./src/pages/Manager/Manager.tsx): Can choose a fund in a list of funds to see stats about the managed fund (/manager route)
+      - [Dashboard Page](./src/pages/DashboardId/DashboardId.tsx): Can see stats about the fund chosen and then swap tokens to operate the fund (/manager/id route)
 
 ### Tokens Addresses
 
@@ -133,7 +133,7 @@ Before that, to give some context, the stakeholders of the financial market expl
   
   - *Custodian & Fund:* Custodians play a pivotal role in safeguarding the assets of the fund, ensuring that they are held securely and are not susceptible to theft or loss. Apart from asset safekeeping, they also assist in transaction settlements and administrative services, thus ensuring smooth operational flow and compliance with regulatory requirements.
 
-![Project Photo](./frontend/src/assets/traditional_am.png)
+![Project Photo](./src/assets/traditional_am.png)
 
 _
 
@@ -157,7 +157,7 @@ Benefits to decentralize the asset management industry and differences from the 
   
   - *Integration and Potential:* The whale.finance is integrated with *Unis Swap*, and can be integrated in the future with other products, like Aave. Besides that, there is a lot of potential to explore 
 
-![Project Photo](./frontend/src/assets/descentralized_am.png)
+![Project Photo](./src/assets/descentralized_am.png)
 
 _
 

@@ -50,7 +50,7 @@ _
 
 [App Link](https://whale-finance-frontend.vercel.app/)
 
-[Demo Video](https://youtu.be/DKN8tXYl858)
+[Demo Video](https://youtu.be/0J9ruc0Kh9U)
 
 [Presentation Link](https://www.canva.com/design/DAF7ofuzmyE/aJQfqObLAS5EFFbdfTIpLA/edit?utm_content=DAF7ofuzmyE&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 

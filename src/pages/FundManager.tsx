@@ -86,6 +86,8 @@ export default function FundManager({ account, provider, signer} : { account: st
     const [tokenB, setTokenB] = useState("WBTC");
     const [tokenBBalance, setTokenBBalance] = useState(0);
 
+    const [fundName, setFundName] = useState("Fund");
+
     const [whaleTokenBalance, setWhaleTokenBalance] = useState(0);
     const [amountBridge, setAmountBridge] = useState(0);
 
@@ -191,6 +193,28 @@ export default function FundManager({ account, provider, signer} : { account: st
             console.log(err)
         }
     }
+
+    async function getFundName(){
+        try{
+            if(account == "" || !ethers.utils.isAddress(account as string)){
+                return;
+            }
+            const whaleFinanceContract = new ethers.Contract(WhaleFinanceAddress,WhaleFinanceAbi, provider);
+            const nameFund = await whaleFinanceContract.functions.fundsNames(fundId);
+            setFundName(nameFund[0]);
+
+        } catch(err){
+            toast({
+                title: "Error fund name",
+                description: "Unable to get fund name"
+            })
+            console.log(err)
+        } 
+    }
+
+    useEffect(() => {
+        getFundName();
+    },[account, signer]);
 
     useEffect(() => {
         getFundManager();
@@ -367,7 +391,7 @@ export default function FundManager({ account, provider, signer} : { account: st
 
     return (
         <div className='w-[100vw] h-[100vh] overflow-y-auto'>
-            <FundHeroSection name={fund?.name} description={fund?.description} color="secondary"/>
+            <FundHeroSection name={fundName} description={fund?.description} manager={fundManager}  color="secondary"/>
             <div className="px-12 pb-12">
                 <Tabs defaultValue="swap" className="w-full">
                     <TabsList className="mb-8 grid-cols-2">

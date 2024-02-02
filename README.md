@@ -1,5 +1,7 @@
 # Whale Finance - Areon Code Area 2024
 
+## Frontend Repo
+
 ## Basic Information
 - *Project Name:* whale.finance
 - *Project Team Members:* Luiz and Bryan
@@ -36,9 +38,17 @@ _
 
   - *Full Ethereum Virtual Machine Compatibility:* Its compatibility with the EVM allows easy integration or migration of Solidity-based smart contracts, tapping into Ethereum's established tools and community resources. Whale Finance is built in EVM and it's crucial to have opportunity to add the last updates of Ethereum in the project.
 
+- *Project Repos:*
+
+[Smart Contracts Repo](https://github.com/Whale-Finance-Blockchain/whale-finance)
+
+[Website Repo](https://github.com/Whale-Finance-Blockchain/website)
+
 - *Project Demo and Presentation:*
 
 [Demo Link](https://whale-finance.netlify.app/)
+
+[App Link](https://whale-finance-frontend.vercel.app/)
 
 [Demo Video](https://youtu.be/DKN8tXYl858)
 

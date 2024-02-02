@@ -28,11 +28,11 @@ _
 
   - *Flexibility and Use Cases:* Whale Finance offers flexibility in the investment flow, allowing investments at various stages and using oracles for continuous fund pricing. Besides investment funds that resemble traditional funds, the platform can also be used for managing DAO treasuries, where decisions are made through votes by quotaToken holders.
 
-- *Why XRPL EVM Sidechain?*
+- *Why Areon?*
 
-  - *High Transaction Throughput:* The XRPL EVM Sidechain's capacity for up to 1000 transactions per second ensures efficient handling of high-volume activities, crucial for Asset Management Projects, like Whale Finance.
+  - *High Transaction Throughput:* The capacity for up to 1000 transactions per second ensures efficient handling of high-volume activities, crucial for Asset Management Projects, like Whale Finance.
 
-  - *Fast Transaction Confirmation Times:* With a block time of 5 seconds, the sidechain offers rapid transaction processing, beneficial for the timely execution of DeFi operations.
+  - *Fast Transaction Confirmation Times:* With a short block time, the chain offers rapid transaction processing, beneficial for the timely execution of DeFi operations.
 
   - *Full Ethereum Virtual Machine Compatibility:* Its compatibility with the EVM allows easy integration or migration of Solidity-based smart contracts, tapping into Ethereum's established tools and community resources. Whale Finance is built in EVM and it's crucial to have opportunity to add the last updates of Ethereum in the project.
 
@@ -92,22 +92,26 @@ _
       - [Funds List Page](./src/pages/Manager/Manager.tsx): Can choose a fund in a list of funds to see stats about the managed fund (/manager route)
       - [Dashboard Page](./src/pages/DashboardId/DashboardId.tsx): Can see stats about the fund chosen and then swap tokens to operate the fund (/manager/id route)
 
-### Tokens Addresses
+### Tokens Addresses in Areon Scan
 
   - Fork Uniwap:
-     - UniswapV2Factory deployed at address: 0x9C080703256BDF9Ea1b485aE72f13E31f74C558b
-     - Deployed WETH at address: 0x0120aD0f0a676877fA36295c763eCB092a5a1E37
-     - Deployed UniswapV2Router02 at address: 0xb0744daaf6E84855C3551CDfbCec5892A8892B86
+     - UniswapV2Factory deployed at address: 0x0944830916CECb637613c9Fd0e8F6C21ccFFB4eF ([Link to AreonScan](https://areonscan.com/contracts/0x0944830916CECb637613c9Fd0e8F6C21ccFFB4eF))
+     - Deployed WETH at address: 0x9C080703256BDF9Ea1b485aE72f13E31f74C558b ([Link to AreonScan](https://areonscan.com/contracts/0x9C080703256BDF9Ea1b485aE72f13E31f74C558b))
+     - Deployed UniswapV2Router02 at address: 0x0fee4c356DEeF6567E95b6394420583CA1D1fEEa ([Link to AreonScan](0x0fee4c356DEeF6567E95b6394420583CA1D1fEEa))
   - Whale Implementation:
-     - quotaTokenImplementation address: 0xbe01a08eF192Bb9a5DF8eD9CD9133481574247AD
-     - registry address: 0x07f0a0d79f7F0366c0050218C2Bd6121787cdf8e
-     - whaleToken address: 0x50914077B638196Eff4bCAB090b6d8e8f19b53eE
-     - safeAccount address: 0xc302e1CB32C01A3449866722Cf54e222528726ED
-     - beacon address: 0xBd1f6103ccfecDfCBf35e2D722a2bfa5E18a25FC
-     - whale Finance address: 0xcd055c8824Ef6E9306b1F707Ce2E327ae2145c5D
+     - quotaTokenImplementation address: 0x9d8F28B52504112A8C89df9095ca3BF346286787 ([Link to AreonScan](https://areonscan.com/contracts/0x9d8F28B52504112A8C89df9095ca3BF346286787))
+     - registry address: 0x5F1933923909C6a65a6769fA0d6F157857e33c48 ([Link to AreonScan](https://areonscan.com/contracts/0x5F1933923909C6a65a6769fA0d6F157857e33c48))
+     - whaleToken address: 0x3546914261a14D476671B02498420aDBbE7cA69A ([Link to AreonScan](https://areonscan.com/contracts/0x3546914261a14D476671B02498420aDBbE7cA69A))
+     - safeAccount address: 0xA261F923654Eb93Ab6c35D285d58c8a01D42F792 ([Link to AreonScan](https://areonscan.com/contracts/0xA261F923654Eb93Ab6c35D285d58c8a01D42F792))
+     - beacon address: 0x53a3A188943C94442D76396ba682b09a1e66517F ([Link to AreonScan](https://areonscan.com/contracts/0x53a3A188943C94442D76396ba682b09a1e66517F))
+     - whale Finance address: 0x8aa499C0f0A85b4960Ebe6Bfc993338a9e88cDdb ([Link to AreonScan](https://areonscan.com/contracts/0x8aa499C0f0A85b4960Ebe6Bfc993338a9e88cDdb))
   - Token Addresses:
-    -  WXRP address: 0x22599F1d29F97F66ECdAAfD03dc8bE60ac45575D
-    -  WBTC address: 0x9F0a79c5A1Fb5f7E2221Ddda85362f97FF847F66
+    -  whaleToken address: 0x3546914261a14D476671B02498420aDBbE7cA69A ([Link to AreonScan](https://areonscan.com/contracts/0x3546914261a14D476671B02498420aDBbE7cA69A))
+    -  WBTC address: 0x76D11E63a7b2Ec1C7A4D4Fc88f1D74FC8b98d651 ([Link to AreonScan](https://areonscan.com/contracts/0x76D11E63a7b2Ec1C7A4D4Fc88f1D74FC8b98d651))
+    -  WDOT address: 0xc77e76e8400A9436A7ce4ebCFA18dF76Ae60ED01 ([Link to AreonScan](https://areonscan.com/contracts/0xc77e76e8400A9436A7ce4ebCFA18dF76Ae60ED01))
+    -  USDT address: 0xAF4Bd9d6E474afa59655EFe171e02e4670718f09 ([Link to AreonScan](https://areonscan.com/contracts/0xAF4Bd9d6E474afa59655EFe171e02e4670718f09))
+    -  USDC address: 0x536527976E98E253B424a3655E695D144E343341 ([Link to AreonScan](https://areonscan.com/contracts/0x536527976E98E253B424a3655E695D144E343341))
+    -  Areon address: 0x69801C169647Ad125707Dd40096D4EDC20Bb521a ([Link to AreonScan](https://areonscan.com/contracts/0x69801C169647Ad125707Dd40096D4EDC20Bb521a))
 
 ## Attachment Information
 

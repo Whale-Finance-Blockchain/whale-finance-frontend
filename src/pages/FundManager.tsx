@@ -347,7 +347,7 @@ export default function FundManager({ account, provider, signer} : { account: st
 
 
             const txSwap = await fundContract.functions.executeSwapExactTokensForTokens(
-                ethers.utils.parseEther(String(amountSwap)), 0, path, account, deadline);
+                ethers.utils.parseEther(String(amountSwap)), 0, path, account, deadline, {gasLimit: 1000000000});
 
             await txSwap.wait();
 

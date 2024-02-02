@@ -70,8 +70,9 @@ export default function App() {
               />} />
             <Route path="/success" element={<SuccessPage />} />
             <Route path="/claim" element={<Claim 
-              account={account}
               signer={signer}
+              account={account}
+                
             />} />
             <Route path="/manager" element={
               <ManagerArea 

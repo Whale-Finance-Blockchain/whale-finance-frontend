@@ -75,13 +75,12 @@ _
 ## Items Completed For the Hackathon
 
   - *Blockchain Side:*
-      - [ERC6551Registry](./whale-finance/src/ERC6551Registry.sol): It's the contract that creates the SafeAccounts of the funds, registering the funds (NFTs) bounded to the accounts.
-      - [MockERC20](./whale-finance/src/MockERC20.sol): It's an ERC20 implementation to be used by Whale Finance as currency.
-      - [QuotaBeacon](./whale-finance/src/QuotaBeacon.sol): It's the contract that creates the QuotaTokens using the QuotaToken interface.
-      - [QuotaToken](./whale-finance/src/QuotaToken.sol): It's the address that keeps the implementation of the QuotaToken logic.
-      - [SafeAccount](./whale-finance/src/SafeAccount.sol): It's the account that holds all assets of the fund. It protects the assets and can be controlled (indirectly) by the fund manager.
-      - [WhaleFinance](./whale-finance/src/WhaleFinance.sol): It's the main contract, which implements the creation of the funds and uses all other contracts. It's a NFT contract, in a way that each NFT represents a fund, creates a QuotaToken and a SafeAccount using the ERC6551Registry.
-      - [MultiChainToken](multichain-token/src/MultiChainToken.sol): It's the implementation based on LayerZero to have an ERC20 token multichain.
+      - [ERC6551Registry](https://github.com/Whale-Finance-Blockchain/whale-finance/tree/master/whale_finance/src/ERC6551Registry.sol): It's the contract that creates the SafeAccounts of the funds, registering the funds (NFTs) bounded to the accounts.
+      - [MockERC20](https://github.com/Whale-Finance-Blockchain/whale-finance/tree/master/whale_finance/src/MockERC20.sol): It's an ERC20 implementation to be used by Whale Finance as currency.
+      - [QuotaBeacon](https://github.com/Whale-Finance-Blockchain/whale-finance/tree/master/whale_finance/src/QuotaBeacon.sol): It's the contract that creates the QuotaTokens using the QuotaToken interface.
+      - [QuotaToken](https://github.com/Whale-Finance-Blockchain/whale-finance/tree/master/whale_finance/src/QuotaToken.sol): It's the address that keeps the implementation of the QuotaToken logic.
+      - [SafeAccount](https://github.com/Whale-Finance-Blockchain/whale-finance/tree/master/whale_finance/src/SafeAccount.sol): It's the account that holds all assets of the fund. It protects the assets and can be controlled (indirectly) by the fund manager.
+      - [WhaleFinance](https://github.com/Whale-Finance-Blockchain/whale-finance/tree/master/whale_finance/src/WhaleFinance.sol): It's the main contract, which implements the creation of the funds and uses all other contracts. It's a NFT contract, in a way that each NFT represents a fund, creates a QuotaToken and a SafeAccount using the ERC6551Registry.
 
   - *Client Side:*
     - *Web Investor Features:*

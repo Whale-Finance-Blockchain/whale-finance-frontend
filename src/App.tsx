@@ -69,7 +69,10 @@ export default function App() {
                 signer={signer} 
               />} />
             <Route path="/success" element={<SuccessPage />} />
-            <Route path="/claim" element={<Claim />} />
+            <Route path="/claim" element={<Claim 
+              account={account}
+              signer={signer}
+            />} />
             <Route path="/manager" element={
               <ManagerArea 
                 account={account}

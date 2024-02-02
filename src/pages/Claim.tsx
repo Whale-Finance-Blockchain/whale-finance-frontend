@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Card,
     CardContent,
@@ -11,19 +11,45 @@ import { Input } from '@/components/ui/input';
 import { allowedTokens } from "../utils/addresses";
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { toast } from '@/components/ui/use-toast';
+import { ethers } from 'ethers';
 
-export default function Claim() {
+export default function Claim({ account, signer} : { account: string | null; signer: any;}) {
 
-    //@ts-ignore
-    const [claims, setClaims] = useState<string[]>([]);
+    
     const [loading, setLoading] = useState<boolean>(false);
 
-    const handleClaims = () => {
-        setLoading(true);
-        // const claims = await whaleFinanceContract.functions.claimTokens();
-        // setClaims(claims);
-        setLoading(false);
+    const [amounts, setAmounts] = useState({} as any); 
+
+    const handleClaims = async  () => {
+
+        try{
+            setLoading(true);
+            // const claims = await whaleFinanceContract.functions.claimTokens();
+            // setClaims(claims);
+
+            await Promise.all(Object.keys(amounts).map(async (token: string) => {
+                const tokenContract = new ethers.Contract(allowedTokens[token], ['function mint(address _to, uint256 _amount) public'], signer);
+                await tokenContract.mint(account, amounts[token]);
+
+            }));
+            
+            setLoading(false);
+
+        } catch(err){
+            console.log(err);
+        }
+        
     };
+
+    useEffect(() => {
+        let amountsTmp =  {} as any
+        Object.keys(allowedTokens).forEach((token: string) => {
+            amountsTmp[token] = 0;
+        }
+        );
+
+        setAmounts({...amountsTmp});
+    },[])
 
     const onClaim = async () => {
         await handleClaims();
@@ -45,6 +71,7 @@ export default function Claim() {
                     </CardHeader>
                     <CardContent>
                         {Object.keys(allowedTokens).map((tokenName: string, idx: number) => {
+                            
                             return(
                                 <div key={idx} className='mb-8 w-[60%] mx-[20%]'>
                                     <p className='indent-2 text-sm mb-2'>{tokenName}</p>
@@ -52,6 +79,9 @@ export default function Claim() {
                                         id={tokenName} 
                                         type="number" 
                                         placeholder="Enter number of tokens"
+
+                                        value={(tokenName in amounts) ? amounts[tokenName] : 0}
+                                        onChange={(e) => setAmounts({...amounts, [tokenName]: parseFloat(e.target.value)})}
                                         // value={admFee}
                                         // onChange={(e) => setAdmFee(parseFloat(e.target.value))}
                                      />

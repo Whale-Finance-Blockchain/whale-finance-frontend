@@ -1,10 +1,7 @@
 import React from 'react';
+import { HeroSectionSimpleProps } from '@/utils/props';
 
-type HeroSectionProps = {
-    title: string;
-};
-
-const HeroSection: React.FC<HeroSectionProps> = ({ title }) => {
+const HeroSection: React.FC<HeroSectionSimpleProps> = ({ title }) => {
     return (
         <div className="w-full h-24 text-foreground">
             <div className="text-3xl font-bold">{title}</div>

@@ -1,19 +1,6 @@
 import { createChart, ColorType, LineData, Time } from 'lightweight-charts';
 import React, { useEffect, useRef } from 'react';
-
-interface ChartColors {
-  backgroundColor?: string;
-  bkgColor?: string;
-  lineColor?: string;
-  textColor?: string;
-  areaTopColor?: string;
-  areaBottomColor?: string;
-}
-
-interface ChartComponentProps {
-  data: any[];
-  colors?: ChartColors;
-}
+import { ChartComponentProps } from '@/utils/props';
 
 export const ChartTestComponent: React.FC<ChartComponentProps> = ({ data, colors = {} }) => {
 
